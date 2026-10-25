@@ -8,6 +8,10 @@ echo "=========================================="
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p "$ROOT_DIR/logs"
 
+# 기존 실행 중인 포트(3000, 3001) 선점 프로세스 정리
+fuser -k 3000/tcp 2>/dev/null || true
+fuser -k 3001/tcp 2>/dev/null || true
+
 # 1. Start Backend (FastAPI on Port 3001)
 echo "[1/2] Launching FastAPI Backend on http://127.0.0.1:3001..."
 cd "$ROOT_DIR/backend"

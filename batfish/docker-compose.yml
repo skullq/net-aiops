@@ -1,0 +1,16 @@
+---
+
+services:
+  batfish:
+    image: batfish/allinone:latest
+    container_name: batfish
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+      - "9997:9997"
+      - "9996:9996"
+    volumes:
+      - batfish-data:/data
+
+volumes:
+  batfish-data:
