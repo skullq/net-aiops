@@ -19,6 +19,18 @@ node_modules/
 out/
 npm-debug.log*
 
+# Logs & Diagnostics
+logs/
+*.log
+*.txt
+*.png
+
+# Test scripts & E2E verification
+tests/
+
+# Batfish Snapshots & Cache
+backend/app/batfish_snapshots/
+
 # IDE / OS
 .DS_Store
 *.swp

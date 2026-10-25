@@ -42,7 +42,6 @@ export const DeviceManagerModal: React.FC<DeviceManagerModalProps> = ({
     username: "",
     password: "",
     enable_password: "",
-    mock_mode: false,
     description: "",
   });
 
@@ -60,7 +59,6 @@ export const DeviceManagerModal: React.FC<DeviceManagerModalProps> = ({
       username: dev.username || "",
       password: dev.password || "",
       enable_password: dev.enable_password || "",
-      mock_mode: dev.mock_mode || false,
       description: dev.description || "",
     });
   };
@@ -84,7 +82,6 @@ export const DeviceManagerModal: React.FC<DeviceManagerModalProps> = ({
       username: newDevice.username?.trim() || "admin",
       password: newDevice.password || "admin",
       enable_password: newDevice.enable_password || "admin",
-      mock_mode: Boolean(newDevice.mock_mode),
       description: newDevice.description?.trim() || "",
     });
 
@@ -95,7 +92,6 @@ export const DeviceManagerModal: React.FC<DeviceManagerModalProps> = ({
       username: "",
       password: "",
       enable_password: "",
-      mock_mode: false,
       description: "",
     });
     setShowAddForm(false);
@@ -212,15 +208,10 @@ export const DeviceManagerModal: React.FC<DeviceManagerModalProps> = ({
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={newDevice.mock_mode || false}
-                    onChange={(e) => setNewDevice({ ...newDevice, mock_mode: e.target.checked })}
-                    className="rounded border-slate-700 bg-slate-900 text-cyan-600 focus:ring-0"
-                  />
-                  <span>{t.deviceManager.mockModeLabel}</span>
-                </label>
+                <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>100% {t.common.live} SSH</span>
+                </span>
 
                 <div className="flex gap-1.5">
                   <button
@@ -316,15 +307,10 @@ export const DeviceManagerModal: React.FC<DeviceManagerModalProps> = ({
                     </div>
 
                     <div className="flex items-center justify-between pt-1">
-                      <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-300">
-                        <input
-                          type="checkbox"
-                          checked={editForm.mock_mode || false}
-                          onChange={(e) => setEditForm({ ...editForm, mock_mode: e.target.checked })}
-                          className="rounded border-slate-700 bg-slate-900 text-cyan-600 focus:ring-0"
-                        />
-                        <span>{t.deviceManager.mockModeEdit}</span>
-                      </label>
+                      <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span>100% {t.common.live} SSH</span>
+                      </span>
 
                       <div className="flex gap-1.5">
                         <button
@@ -360,14 +346,8 @@ export const DeviceManagerModal: React.FC<DeviceManagerModalProps> = ({
                       <span className="text-[11px] font-mono text-slate-400">
                         {device.host}:{device.port || 22}
                       </span>
-                      <span
-                        className={`text-[9px] px-1.5 py-0.2 rounded font-mono font-medium ${
-                          device.mock_mode
-                            ? "bg-amber-950/70 text-amber-400 border border-amber-800/40"
-                            : "bg-emerald-950/70 text-emerald-400 border border-emerald-800/40"
-                        }`}
-                      >
-                        {device.mock_mode ? t.deviceManager.mockBadge : t.deviceManager.liveBadge}
+                      <span className="text-[9px] px-1.5 py-0.2 rounded font-mono font-medium bg-emerald-950/70 text-emerald-400 border border-emerald-800/40">
+                        {t.deviceManager.liveBadge}
                       </span>
                     </div>
                     <div className="text-[10px] text-slate-500 font-mono">

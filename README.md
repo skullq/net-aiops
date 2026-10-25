@@ -79,8 +79,8 @@ uv pip install -e .
 # 환경변수 설정 (.env)
 cp .env.example .env
 
-# FastAPI 서버 구동 (포트 8000)
-.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+# FastAPI 서버 구동 (포트 3001)
+.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 3001 --reload
 ```
 
 ### 2. 프론트엔드 실행 (`Next.js`)
@@ -106,9 +106,9 @@ npm run dev
 | `CISCO_USERNAME` | `admin` | SSH 계정명 |
 | `CISCO_PASSWORD` | `cisco_password` | SSH 비밀번호 |
 | `CISCO_MOCK_MODE` | `true` | 시뮬레이션 모드 활성화 여부 |
-| `BACKEND_PORT` | `8000` | FastAPI 서비스 포트 |
+| `BACKEND_PORT` | `3001` | FastAPI 서비스 포트 |
 
 ### 4. 브라우저 접속
 - **Web UI**: `http://localhost:3000`
-- **FastAPI Swagger Docs**: `http://localhost:8000/docs`
+- **FastAPI Swagger Docs**: `http://localhost:3001/docs`
 

@@ -10,6 +10,9 @@ import {
   ArrowRight,
   X,
   Search,
+  Network,
+  GitFork,
+  Compass,
 } from "lucide-react";
 import { GraphData, GraphNode, GraphLink, NodeType } from "@/types";
 import { useI18n } from "@/i18n";
@@ -40,7 +43,10 @@ const NODE_COLORS: Record<NodeType, { bg: string; border: string; text: string; 
   RootCause: { bg: "#f43f5e", border: "#be123c", text: "#ffe4e6", glow: "rgba(244, 63, 94, 0.4)" },
   Verification: { bg: "#0284c7", border: "#0369a1", text: "#e0f2fe", glow: "rgba(2, 132, 199, 0.4)" },
   Command: { bg: "#10b981", border: "#047857", text: "#d1fae5", glow: "rgba(16, 185, 129, 0.4)" },
+  Remediation: { bg: "#8b5cf6", border: "#6d28d9", text: "#ede9fe", glow: "rgba(139, 92, 246, 0.4)" },
 };
+
+export type LayoutMode = "force" | "hierarchical" | "radial";
 
 export const GraphStudio: React.FC<GraphStudioProps> = ({
   graphData,
@@ -55,6 +61,9 @@ export const GraphStudio: React.FC<GraphStudioProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 700 });
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+
+  // Layout Mode (NetworkX Topology Views)
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("force");
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState("");
@@ -92,7 +101,7 @@ export const GraphStudio: React.FC<GraphStudioProps> = ({
     return () => observer.disconnect();
   }, []);
 
-  // Filtered nodes calculation
+  // Filtered and positioned nodes calculation
   const filteredGraphData = useMemo(() => {
     let nodes = graphData.nodes;
     if (selectedTypeFilter !== "ALL") {
@@ -108,13 +117,108 @@ export const GraphStudio: React.FC<GraphStudioProps> = ({
       );
     }
     const nodeIds = new Set(nodes.map((n) => n.id));
-    const links = graphData.links.filter((l) => {
-      const srcId = typeof l.source === "object" ? (l.source as any).id : l.source;
-      const tgtId = typeof l.target === "object" ? (l.target as any).id : l.target;
-      return nodeIds.has(srcId) && nodeIds.has(tgtId);
-    });
-    return { nodes, links };
-  }, [graphData, selectedTypeFilter, searchTerm]);
+
+    // 1. Create fresh positioned nodes map to prevent stale D3 object references
+    const positionedNodes = nodes.map((n) => ({ ...n }));
+    const nodeMap = new Map<string, GraphNode>();
+    positionedNodes.forEach((n) => nodeMap.set(n.id, n));
+
+    // 2. Compute Layout algorithm (NetworkX Topology View calculations)
+    if (layoutMode === "hierarchical") {
+      const layerOrder: Record<string, number> = {
+        Symptom: 0,
+        RootCause: 1,
+        Verification: 2,
+        Command: 3,
+      };
+      const layerGroups: Record<number, GraphNode[]> = { 0: [], 1: [], 2: [], 3: [] };
+      positionedNodes.forEach((n) => {
+        const idx = layerOrder[n.type] ?? 0;
+        layerGroups[idx].push(n);
+      });
+
+      // Compact X column offsets
+      const xCols: Record<number, number> = { 0: -360, 1: -120, 2: 120, 3: 360 };
+      Object.entries(layerGroups).forEach(([colKey, colNodes]) => {
+        const col = Number(colKey);
+        const count = colNodes.length;
+        if (count === 0) return;
+        // Fit within 600px vertical space so everything is visible
+        const totalHeight = Math.min(count * 22, 600);
+        const yStart = -totalHeight / 2;
+        const yStep = count > 1 ? totalHeight / (count - 1) : 0;
+
+        colNodes.forEach((node, i) => {
+          node.x = xCols[col];
+          node.y = count > 1 ? yStart + i * yStep : 0;
+          node.fx = node.x;
+          node.fy = node.y;
+        });
+      });
+    } else if (layoutMode === "radial") {
+      // Compact Concentric Rings (Radius: 60, 140, 230, 330)
+      const ringRadii: Record<string, number> = {
+        Symptom: 60,
+        RootCause: 140,
+        Verification: 230,
+        Command: 330,
+      };
+      const ringGroups: Record<string, GraphNode[]> = {
+        Symptom: [],
+        RootCause: [],
+        Verification: [],
+        Command: [],
+      };
+      positionedNodes.forEach((n) => {
+        if (ringGroups[n.type]) {
+          ringGroups[n.type].push(n);
+        } else {
+          ringGroups.Symptom.push(n);
+        }
+      });
+
+      Object.entries(ringGroups).forEach(([typeKey, ringNodes]) => {
+        const radius = ringRadii[typeKey] ?? 180;
+        const count = ringNodes.length;
+        if (count === 0) return;
+        const angleStep = (2 * Math.PI) / count;
+
+        ringNodes.forEach((node, i) => {
+          const angle = i * angleStep;
+          node.x = radius * Math.cos(angle);
+          node.y = radius * Math.sin(angle);
+          node.fx = node.x;
+          node.fy = node.y;
+        });
+      });
+    } else {
+      // Scale (Force) mode: free dynamic physics layout
+      positionedNodes.forEach((node) => {
+        node.fx = undefined;
+        node.fy = undefined;
+      });
+    }
+
+    // 3. Re-map links cleanly with fresh string IDs to fix edge line misalignment
+    const links = graphData.links
+      .filter((l) => {
+        const srcId = typeof l.source === "object" ? (l.source as any).id : l.source;
+        const tgtId = typeof l.target === "object" ? (l.target as any).id : l.target;
+        return nodeMap.has(srcId) && nodeMap.has(tgtId);
+      })
+      .map((l) => {
+        const srcId = typeof l.source === "object" ? (l.source as any).id : l.source;
+        const tgtId = typeof l.target === "object" ? (l.target as any).id : l.target;
+        return {
+          source: srcId,
+          target: tgtId,
+          relationship: l.relationship,
+          description: l.description,
+        };
+      });
+
+    return { nodes: positionedNodes, links };
+  }, [graphData, selectedTypeFilter, searchTerm, layoutMode]);
 
   // Node details relations (incoming & outgoing)
   const nodeRelations = useMemo(() => {
@@ -222,8 +326,68 @@ export const GraphStudio: React.FC<GraphStudioProps> = ({
           </div>
         </div>
 
-        {/* Right: Actions */}
+        {/* Right: Layout Switcher & Actions */}
         <div className="flex items-center gap-2">
+          {/* Topology Layout Mode Selector */}
+          <div className="flex items-center p-0.5 rounded-lg bg-slate-950 border border-slate-800 text-xs shadow-inner">
+            <button
+              onClick={() => {
+                setLayoutMode("force");
+                setTimeout(() => {
+                  fgRef.current?.d3ReheatSimulation();
+                  fgRef.current?.zoomToFit(450, 60);
+                }, 150);
+              }}
+              title={t.graph.layoutForce}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition font-medium text-[11px] ${
+                layoutMode === "force"
+                  ? "bg-purple-600 text-white shadow-xs font-semibold"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Network className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Scale</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setLayoutMode("hierarchical");
+                setTimeout(() => {
+                  fgRef.current?.d3ReheatSimulation();
+                  fgRef.current?.zoomToFit(450, 60);
+                }, 150);
+              }}
+              title={t.graph.layoutHierarchical}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition font-medium text-[11px] ${
+                layoutMode === "hierarchical"
+                  ? "bg-purple-600 text-white shadow-xs font-semibold"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <GitFork className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Hierarchy</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setLayoutMode("radial");
+                setTimeout(() => {
+                  fgRef.current?.d3ReheatSimulation();
+                  fgRef.current?.zoomToFit(450, 60);
+                }, 150);
+              }}
+              title={t.graph.layoutRadial}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition font-medium text-[11px] ${
+                layoutMode === "radial"
+                  ? "bg-purple-600 text-white shadow-xs font-semibold"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Radial</span>
+            </button>
+          </div>
+
           <button
             onClick={() => setShowAddNodeModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium shadow-md shadow-purple-600/20 transition"
@@ -263,11 +427,20 @@ export const GraphStudio: React.FC<GraphStudioProps> = ({
             nodeVal={(node: any) => (node.type === "Symptom" ? 10 : 7)}
             linkDirectionalArrowLength={5}
             linkDirectionalArrowRelPos={0.88}
-            linkColor={() => "rgba(100, 116, 139, 0.4)"}
+            linkColor={() => "rgba(100, 116, 139, 0.45)"}
             linkWidth={1.5}
             linkDirectionalParticles={2}
             linkDirectionalParticleSpeed={0.005}
             linkDirectionalParticleWidth={2}
+            cooldownTicks={120}
+            d3VelocityDecay={0.35}
+            d3AlphaDecay={0.03}
+            warmupTicks={30}
+            onEngineStop={() => {
+              if (fgRef.current) {
+                fgRef.current.zoomToFit(400, 60);
+              }
+            }}
             onNodeClick={(node: any) => setSelectedNode(node)}
             nodeCanvasObject={(node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
               const label = node.label || node.id;

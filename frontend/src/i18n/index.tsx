@@ -39,6 +39,10 @@ export const translations = {
       deviceManagerTooltip: "네트워크 장비 관리 (devices.env & devices.json)",
       langKo: "한국어",
       langEn: "English",
+      debugOn: "DEBUG ON",
+      debugOff: "DEBUG OFF",
+      debugTooltipOn: "디버그 모드 ON (진단 세션 로그를 logs/ai_diagnostics/에 영구 저장)",
+      debugTooltipOff: "디버그 모드 OFF (파일 저장을 건너뛰고 간결 모드로 동작)",
     },
     chat: {
       title: "통합 AI 진단 채팅 (Net-AIOps Agent)",
@@ -47,15 +51,20 @@ export const translations = {
       emptyDesc:
         "NetworkX Causal Graph와 Cisco IOS-XE Scrapli/hier-config MCP 도구를 기반으로 자율적인 근본 원인 분석과 교정 CLI를 제공합니다.",
       quickScenarios: "추천 진단 시나리오:",
-      quick1Title: "BGP Neighbor Down 진단",
+      quick1Title: "BGP Neighbor Down/Idle 진단 (r1)",
       quick1Prompt:
-        "BGP 피어 192.168.10.2가 Down 상태입니다. 인과 그래프와 show 명령어로 원인을 분석하고 복구 명령을 생성해줘.",
+        "r1 (192.168.100.11)의 BGP 네이버 4.4.4.4가 Idle 상태입니다. 인과 그래프와 show 명령어로 원인을 분석하고 복구 명령을 생성해줘.",
       quick2Title: "OSPF Stuck in ExStart 점검",
       quick2Prompt:
         "OSPF 네이버가 EXSTART 단계에서 멈춰있습니다. MTU 및 인접 상태를 점검하고 해결책을 제시해줘.",
       quick3Title: "인터페이스 CRC Drop 분석",
       quick3Prompt:
         "GigabitEthernet1 인터페이스에 패킷 드롭 및 Input Error가 발생합니다. 원인 분석과 Remediation을 작성해줘.",
+      quick4Title: "BGP Next-Hop / OSPF·ISIS·Static 언더레이 진단",
+      quick4Prompt:
+        "BGP 경로는 수신되나 Next-Hop이 Inaccessible 상태입니다. OSPF, IS-IS 또는 Static routing 언더레이 도달성 및 next-hop-self 설정을 확인하고 해결책을 제시해줘.",
+      quick5Title: "r1 ➔ r2 멀티홉(Transit) 네트워크 문제 진단",
+      quick5Prompt: "r1과 r2 사이의 네트워크 문제를 찾아줘",
       runDiagnostic: "진단 실행 →",
       inputPlaceholder:
         "네트워크 장애 증상이나 명령어를 입력하세요... (예: OSPF 인접관계 불일치 진단)",
@@ -79,6 +88,12 @@ export const translations = {
       rawCliOutput: "Cisco CLI 원시 터미널 출력:",
       remediationScript: "hier-config 도출 복구 설정 스크립트:",
       graphPaths: "탐색된 인과 관계 경로 (Causal Path):",
+      llmPromptPayload: "LLM 전달 프롬프트 및 동적 페이로드:",
+      systemPromptTitle: "시스템 프롬프트 (System Prompt - 2줄 일반 지침):",
+      dynamicContextTitle: "주입된 동적 컨텍스트 (Dynamic Context):",
+      allMessagesTitle: "전체 LLM 요청 메시지 (Messages Payload):",
+      tookTime: "소요",
+      startBadge: "시작",
       collapse: "접기",
       expand: "상세 보기",
     },
@@ -120,6 +135,10 @@ export const translations = {
       relFixedBy: "fixed_by (해결됨)",
       relExecutes: "executes (실행함)",
       legend: "범례 (Legend):",
+      layoutMode: "토폴로지 뷰",
+      layoutForce: "화면 스케일 뷰 (Scale)",
+      layoutHierarchical: "계층 인과 흐름 (Causal Flow)",
+      layoutRadial: "동심원 방사형 (Concentric Shell)",
     },
     deviceManager: {
       modalTitle: "네트워크 장비 관리",
@@ -171,6 +190,10 @@ export const translations = {
       mockModeToggle: "Cisco 장비 Mock 시뮬레이션 모드 사용",
       mockModeDesc:
         "활성화 시 실제 SSH 장비 연결 없이 가상 Cisco IOS-XE 응답 데이터셋으로 동작합니다.",
+      debugSectionTitle: "AIOps 세션 디버그 로그 설정",
+      debugModeLabel: "디버그 로그 모드 활성화 (Session & Trace Persistence)",
+      debugModeDesc:
+        "활성화 시 모든 진단 세션의 실측 CLI 원문, Batfish 팩트 및 추론 타임라인이 logs/ai_diagnostics/ 에 영구 보관됩니다.",
       saveSettings: "설정 저장하기",
       saved: "저장 완료!",
       cancel: "취소",
@@ -210,6 +233,10 @@ export const translations = {
       deviceManagerTooltip: "Manage Network Devices (devices.env & devices.json)",
       langKo: "한국어",
       langEn: "English",
+      debugOn: "DEBUG ON",
+      debugOff: "DEBUG OFF",
+      debugTooltipOn: "Debug Mode ON (Persists all session logs to logs/ai_diagnostics/)",
+      debugTooltipOff: "Debug Mode OFF (Skips disk log saving)",
     },
     chat: {
       title: "Unified AI Diagnostic Chat (Net-AIOps Agent)",
@@ -218,15 +245,20 @@ export const translations = {
       emptyDesc:
         "Provides autonomous root-cause analysis and remediation CLI based on NetworkX Causal Graph and Cisco IOS-XE Scrapli/hier-config MCP tools.",
       quickScenarios: "Recommended Diagnostic Scenarios:",
-      quick1Title: "BGP Neighbor Down Diagnostics",
+      quick1Title: "BGP Neighbor Down/Idle Diagnostics (r1)",
       quick1Prompt:
-        "BGP peer 192.168.10.2 is Down. Analyze the root cause using the causal graph and show commands, and generate recovery commands.",
+        "BGP peer 4.4.4.4 on r1 (192.168.100.11) is in Idle state. Analyze the root cause using the causal graph and show commands, and generate recovery commands.",
       quick2Title: "OSPF Stuck in ExStart Check",
       quick2Prompt:
         "OSPF neighbor is stuck in EXSTART state. Check MTU and adjacency status, and provide a resolution.",
       quick3Title: "Interface CRC Drop Analysis",
       quick3Prompt:
         "Packet drops and input errors are occurring on GigabitEthernet1. Provide root-cause analysis and remediation CLI.",
+      quick4Title: "BGP Next-Hop / OSPF·ISIS·Static Underlay",
+      quick4Prompt:
+        "BGP routes are received but marked inaccessible. Verify OSPF, IS-IS, or Static routing reachability to the next-hop and check next-hop-self.",
+      quick5Title: "r1 ➔ r2 Multi-hop Transit Diagnostics",
+      quick5Prompt: "r1과 r2 사이의 네트워크 문제를 찾아줘",
       runDiagnostic: "Run Diagnostic →",
       inputPlaceholder:
         "Enter network symptom or command... (e.g. Diagnose OSPF adjacency mismatch)",
@@ -250,6 +282,12 @@ export const translations = {
       rawCliOutput: "Cisco CLI Raw Terminal Output:",
       remediationScript: "hier-config Derived Remediation Script:",
       graphPaths: "Traversed Causal Path:",
+      llmPromptPayload: "LLM Prompt & Dynamic Payload:",
+      systemPromptTitle: "System Prompt (2-line general guidance):",
+      dynamicContextTitle: "Injected Dynamic Context:",
+      allMessagesTitle: "Full LLM Messages Payload:",
+      tookTime: "took",
+      startBadge: "start",
       collapse: "Collapse",
       expand: "Expand",
     },
@@ -291,6 +329,10 @@ export const translations = {
       relFixedBy: "fixed_by",
       relExecutes: "executes",
       legend: "Legend:",
+      layoutMode: "Topology View",
+      layoutForce: "Auto-Scale View (Scale)",
+      layoutHierarchical: "Causal Flow (Hierarchy)",
+      layoutRadial: "Concentric Shell (Radial)",
     },
     deviceManager: {
       modalTitle: "Network Device Management",
@@ -342,6 +384,10 @@ export const translations = {
       mockModeToggle: "Use Cisco Device Mock Simulation Mode",
       mockModeDesc:
         "When enabled, operates with simulated Cisco IOS-XE dataset without real SSH connection.",
+      debugSectionTitle: "AIOps Session Debug Log Settings",
+      debugModeLabel: "Enable Debug Log Mode (Session & Trace Persistence)",
+      debugModeDesc:
+        "When enabled, raw Cisco CLI outputs, Batfish facts, and reasoning traces for all sessions are saved to logs/ai_diagnostics/.",
       saveSettings: "Save Settings",
       saved: "Saved!",
       cancel: "Cancel",

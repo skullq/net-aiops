@@ -8,6 +8,7 @@ class NodeType(str, Enum):
     ROOT_CAUSE = "RootCause"
     VERIFICATION = "Verification"
     COMMAND = "Command"
+    REMEDIATION = "Remediation"
 
 
 class NodeModel(BaseModel):
@@ -16,6 +17,10 @@ class NodeModel(BaseModel):
     type: NodeType
     description: Optional[str] = ""
     details: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    x: Optional[float] = None
+    y: Optional[float] = None
+    fx: Optional[float] = None
+    fy: Optional[float] = None
 
 
 class EdgeModel(BaseModel):
@@ -28,6 +33,8 @@ class EdgeModel(BaseModel):
 class GraphDataResponse(BaseModel):
     nodes: List[NodeModel]
     links: List[EdgeModel]
+    layout: Optional[str] = "force"
+    metadata: Optional[Dict[str, Any]] = None
 
 
 class LLMConfig(BaseModel):
@@ -37,17 +44,17 @@ class LLMConfig(BaseModel):
 
 
 class DeviceConfig(BaseModel):
-    host: str = Field(default="192.168.1.1", description="Cisco IOS-XE Host/IP")
+    host: str = Field(default="192.168.100.11", description="Cisco IOS-XE Host/IP")
     port: int = Field(default=22, description="SSH Port")
-    username: str = Field(default="cisco", description="SSH Username")
-    password: str = Field(default="cisco", description="SSH Password")
+    username: str = Field(default="admin", description="SSH Username")
+    password: str = Field(default="admin", description="SSH Password")
     enable_password: Optional[str] = Field(default="", description="Enable Password")
-    mock_mode: bool = Field(default=True, description="Enable simulated IOS-XE responses")
 
 
 class AppConfig(BaseModel):
     llm: LLMConfig = Field(default_factory=LLMConfig)
     device: DeviceConfig = Field(default_factory=DeviceConfig)
+    debug_mode: bool = Field(default=True, description="Enable debug logging of sessions to disk")
 
 
 class CommandExecutionRequest(BaseModel):
@@ -71,3 +78,5 @@ class ChatRequest(BaseModel):
     history: List[ChatMessage] = Field(default_factory=list)
     llm_config: Optional[LLMConfig] = None
     device_config: Optional[DeviceConfig] = None
+    language: Optional[str] = Field(default="ko", description="Response language ('ko' or 'en')")
+    debug_mode: Optional[bool] = Field(default=None, description="Override debug logging mode for this session")

@@ -7,7 +7,6 @@
     "username": "admin",
     "password": "admin",
     "enable_password": "admin",
-    "mock_mode": false,
     "description": "Lab Core Router r1"
   },
   {
@@ -18,7 +17,6 @@
     "username": "admin",
     "password": "admin",
     "enable_password": "admin",
-    "mock_mode": false,
     "description": "Lab Router r2 (192.168.100.12)"
   },
   {
@@ -29,7 +27,6 @@
     "username": "admin",
     "password": "admin",
     "enable_password": "admin",
-    "mock_mode": false,
     "description": "Lab Router r3 (192.168.100.13)"
   },
   {
@@ -40,7 +37,6 @@
     "username": "admin",
     "password": "admin",
     "enable_password": "admin",
-    "mock_mode": false,
     "description": "Lab Router r4 (192.168.100.14)"
   },
   {
@@ -51,7 +47,6 @@
     "username": "admin",
     "password": "admin",
     "enable_password": "admin",
-    "mock_mode": false,
     "description": "Lab Router r5 (192.168.100.15)"
   }
 ]

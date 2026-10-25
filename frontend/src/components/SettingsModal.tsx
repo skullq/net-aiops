@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { X, Server, Sparkles, Key, Check, Info } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { X, Server, Sparkles, Key, Check, Info, Bug, RefreshCw, ChevronDown } from "lucide-react";
 import { AppConfig } from "@/types";
 import { useI18n } from "@/i18n";
 
@@ -31,18 +31,68 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       username: "admin",
       password: "admin",
       enable_password: "admin",
-      mock_mode: false,
     },
   });
 
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [availableModels, setAvailableModels] = useState<string[]>([
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+    "gpt-4o",
+    "gpt-4o-mini",
+  ]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
+
+  const fetchModels = useCallback(async (apiKey?: string, baseUrl?: string) => {
+    setIsLoadingModels(true);
+    try {
+      const res = await fetch("/api/llm/models", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: apiKey || "",
+          base_url: baseUrl || "",
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.models && data.models.length > 0) {
+          setAvailableModels(data.models);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to fetch available LLM models:", err);
+    } finally {
+      setIsLoadingModels(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (config) {
       setFormData(config);
     }
   }, [config, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchModels(formData.llm.api_key, formData.llm.base_url);
+    }
+  }, [isOpen, fetchModels]);
+
+  // API 키 입력 시 디바운스(600ms)로 사용 가능한 모델 목록 자동 갱신
+  useEffect(() => {
+    if (!isOpen) return;
+    const timer = setTimeout(() => {
+      if (formData.llm.api_key && !formData.llm.api_key.startsWith("***")) {
+        fetchModels(formData.llm.api_key, formData.llm.base_url);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [formData.llm.api_key, formData.llm.base_url, isOpen, fetchModels]);
 
   if (!isOpen) return null;
 
@@ -138,21 +188,74 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 mb-1 font-medium">
-                    {t.settings.modelName}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.llm.model}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        llm: { ...formData.llm, model: e.target.value },
-                      })
-                    }
-                    placeholder="gemini-2.5-flash"
-                    className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
-                  />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-300 font-medium">
+                      {t.settings.modelName}
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      {availableModels.length > 0 && (
+                        <span className="text-[10px] text-cyan-400 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-800/40">
+                          {availableModels.length}개 모델 검색됨
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => fetchModels(formData.llm.api_key, formData.llm.base_url)}
+                        disabled={isLoadingModels}
+                        title="사용 가능한 LLM 목록 새로고침"
+                        className="p-1 rounded text-slate-400 hover:text-cyan-300 hover:bg-slate-800 transition disabled:opacity-50"
+                      >
+                        <RefreshCw className={`w-3 h-3 ${isLoadingModels ? "animate-spin text-cyan-400" : ""}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="text"
+                      list="llm-model-options"
+                      value={formData.llm.model}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          llm: { ...formData.llm, model: e.target.value },
+                        })
+                      }
+                      placeholder="gemini-2.5-flash"
+                      className="w-full px-3 py-2 pr-8 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
+                    />
+                    <datalist id="llm-model-options">
+                      {availableModels.map((m) => (
+                        <option key={m} value={m} />
+                      ))}
+                    </datalist>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none text-slate-500">
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+
+                  {/* 빠른 모델 선택 칩 */}
+                  <div className="mt-1.5 flex flex-wrap gap-1 max-h-16 overflow-y-auto">
+                    {availableModels.slice(0, 6).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() =>
+                          setFormData({
+                            ...formData,
+                            llm: { ...formData.llm, model: m },
+                          })
+                        }
+                        className={`text-[10px] px-1.5 py-0.5 rounded font-mono transition border ${
+                          formData.llm.model === m
+                            ? "bg-cyan-950/90 text-cyan-300 border-cyan-500/60 shadow-xs"
+                            : "bg-slate-950/60 text-slate-400 border-slate-800 hover:text-slate-200 hover:border-slate-700"
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -168,32 +271,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <span>{t.settings.deviceSectionTitle}</span>
               </div>
 
-              {/* Mock Mode Toggle */}
-              <label className="relative inline-flex items-center cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={formData.device.mock_mode}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      device: { ...formData.device, mock_mode: e.target.checked },
-                    })
-                  }
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-600"></div>
-                <span className="ml-2 text-xs font-medium text-slate-300">
-                  {formData.device.mock_mode ? `${t.common.mock} ON` : `${t.common.live} SSH`}
-                </span>
-              </label>
-            </div>
-
-            {formData.device.mock_mode && (
-              <div className="p-2.5 rounded-lg bg-amber-950/30 border border-amber-800/40 text-amber-300/90 text-[11px] flex items-start gap-2">
-                <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
-                <span>{t.settings.mockModeDesc}</span>
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-950/70 border border-emerald-800/40 text-emerald-400 text-[11px] font-mono font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>100% {t.common.live} SSH</span>
               </div>
-            )}
+            </div>
 
             <div className="grid grid-cols-3 gap-3 text-xs">
               <div className="col-span-2">
@@ -285,6 +367,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </div>
             </div>
+          </div>
+
+          <div className="border-t border-slate-800" />
+
+          {/* Section 3: Debug Mode Configuration */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400">
+              <Bug className="w-3.5 h-3.5" />
+              <span>{t.settings.debugSectionTitle}</span>
+            </div>
+
+            <label className="flex items-start gap-3 p-3 rounded-xl bg-slate-950/70 border border-slate-800 hover:border-amber-500/40 transition cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={formData.debug_mode ?? true}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    debug_mode: e.target.checked,
+                  })
+                }
+                className="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-amber-500/30"
+              />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-slate-200">
+                    {t.settings.debugModeLabel}
+                  </span>
+                  <span
+                    className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-bold ${
+                      formData.debug_mode ?? true
+                        ? "bg-amber-950/80 text-amber-300 border border-amber-800/60"
+                        : "bg-slate-800 text-slate-400 border border-slate-700"
+                    }`}
+                  >
+                    {formData.debug_mode ?? true ? "ACTIVE (ON)" : "INACTIVE (OFF)"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                  {t.settings.debugModeDesc}
+                </p>
+              </div>
+            </label>
           </div>
 
           {/* Modal Footer */}

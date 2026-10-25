@@ -65,6 +65,16 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       prompt: t.chat.quick3Prompt,
       icon: "🛠️",
     },
+    {
+      title: t.chat.quick4Title,
+      prompt: t.chat.quick4Prompt,
+      icon: "🔀",
+    },
+    {
+      title: t.chat.quick5Title,
+      prompt: t.chat.quick5Prompt,
+      icon: "🌐",
+    },
   ];
 
   return (

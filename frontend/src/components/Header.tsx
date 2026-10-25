@@ -9,6 +9,8 @@ import {
   Bot,
   Layers,
   Globe,
+  Bug,
+  BugOff,
 } from "lucide-react";
 import { AppConfig, GraphData } from "@/types";
 import { useI18n } from "@/i18n";
@@ -24,8 +26,10 @@ interface HeaderProps {
   onOpenSettings: () => void;
   onOpenDeviceManager: () => void;
   deviceCount?: number;
-  onResetGraph: () => void;
-  isResetting: boolean;
+  onResetGraph?: () => void;
+  isResetting?: boolean;
+  debugMode?: boolean;
+  onToggleDebugMode?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -39,6 +43,8 @@ export const Header: React.FC<HeaderProps> = ({
   deviceCount = 0,
   onResetGraph,
   isResetting,
+  debugMode = true,
+  onToggleDebugMode,
 }) => {
   const { language, setLanguage, t } = useI18n();
 
@@ -134,16 +140,27 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </button>
 
-        {/* Reset Graph */}
-        <button
-          onClick={onResetGraph}
-          disabled={isResetting}
-          title={t.header.resetTitle}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-xs transition disabled:opacity-50"
-        >
-          <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? "animate-spin" : ""}`} />
-          <span className="hidden sm:inline">{t.header.resetGraph}</span>
-        </button>
+        {/* Debug Mode Toggle Button */}
+        {onToggleDebugMode && (
+          <button
+            onClick={onToggleDebugMode}
+            title={debugMode ? t.header.debugTooltipOn : t.header.debugTooltipOff}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-semibold border transition shadow-xs ${
+              debugMode
+                ? "bg-amber-950/70 border-amber-500/70 text-amber-300 hover:bg-amber-900/80 shadow-amber-500/20"
+                : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+            }`}
+          >
+            {debugMode ? (
+              <Bug className="w-3.5 h-3.5 text-amber-400" />
+            ) : (
+              <BugOff className="w-3.5 h-3.5 text-slate-500" />
+            )}
+            <span className="hidden md:inline font-mono">
+              {debugMode ? t.header.debugOn : t.header.debugOff}
+            </span>
+          </button>
+        )}
 
         {/* Settings Modal Trigger */}
         <button

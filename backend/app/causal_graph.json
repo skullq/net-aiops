@@ -1,0 +1,5287 @@
+{
+  "nodes": [
+    {
+      "_key": "symptom_bgp_down",
+      "id": "symptom_bgp_down",
+      "label": "BGP Neighbor Down",
+      "type": "Symptom",
+      "description": "BGP 피어 세션이 단절되어 라우팅 정보 교환이 중단됨",
+      "details": {
+        "severity": "CRITICAL",
+        "category": "BGP-Session"
+      }
+    },
+    {
+      "_key": "rc_bgp_auth_mismatch",
+      "id": "rc_bgp_auth_mismatch",
+      "label": "BGP MD5 Password Mismatch",
+      "type": "RootCause",
+      "description": "BGP 피어 간 MD5 패스워드 불일치로 인한 TCP 세션 수립 실패",
+      "details": {
+        "protocol": "BGP",
+        "layer": "L4-L7"
+      }
+    },
+    {
+      "_key": "rc_bgp_mtu_mismatch",
+      "id": "rc_bgp_mtu_mismatch",
+      "label": "Interface MTU Mismatch",
+      "type": "RootCause",
+      "description": "피어 인터페이스 간 MTU 크기 불일치로 BGP 패킷 수신 시 세션 리셋",
+      "details": {
+        "protocol": "IP/Ethernet",
+        "layer": "L2-L3"
+      }
+    },
+    {
+      "_key": "rc_interface_flapping",
+      "id": "rc_interface_flapping",
+      "label": "Physical Link Flapping",
+      "type": "RootCause",
+      "description": "물리 인터페이스 불안정 또는 광 레벨 저하로 인한 링크 플래핑",
+      "details": {
+        "protocol": "Ethernet",
+        "layer": "L1-L2"
+      }
+    },
+    {
+      "_key": "ver_check_bgp_summary",
+      "id": "ver_check_bgp_summary",
+      "label": "Verify BGP Summary",
+      "type": "Verification",
+      "description": "BGP 네이버 상태 및 Prefix 수신 카운터 확인",
+      "details": {
+        "method": "CLI Verification"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_bgp_summary",
+      "id": "cmd_show_ip_bgp_summary",
+      "label": "show ip bgp summary",
+      "type": "Command",
+      "description": "BGP 네이버 요약 정보 및 상태 확인",
+      "details": {
+        "command": "show ip bgp summary",
+        "expected_state": "Established"
+      }
+    },
+    {
+      "_key": "ver_check_bgp_neighbors",
+      "id": "ver_check_bgp_neighbors",
+      "label": "Inspect BGP Neighbor Log",
+      "type": "Verification",
+      "description": "BGP 네이버 상세 에러 코드(Notification) 및 재연결 횟수 조사",
+      "details": {
+        "method": "Detailed CLI Log Check"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_bgp_neighbors",
+      "id": "cmd_show_ip_bgp_neighbors",
+      "label": "show ip bgp neighbors",
+      "type": "Command",
+      "description": "BGP 네이버 상세 정보 및 통계 확인",
+      "details": {
+        "command": "show ip bgp neighbors"
+      }
+    },
+    {
+      "_key": "ver_check_interface_status",
+      "id": "ver_check_interface_status",
+      "label": "Verify Interface Status",
+      "type": "Verification",
+      "description": "물리 인터페이스 링크 및 프로토콜 상태(Up/Up) 확인",
+      "details": {
+        "method": "Interface State Inspection"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_int_brief",
+      "id": "cmd_show_ip_int_brief",
+      "label": "show ip interface brief",
+      "type": "Command",
+      "description": "전체 인터페이스 IP 및 Line Status 확인",
+      "details": {
+        "command": "show ip interface brief"
+      }
+    },
+    {
+      "_key": "cmd_fix_bgp_auth",
+      "id": "cmd_fix_bgp_auth",
+      "label": "Remediation: Fix BGP Auth",
+      "type": "Command",
+      "description": "BGP 피어 MD5 패스워드 재설정 및 동기화",
+      "details": {
+        "type": "Remediation",
+        "action": "hier_config_patch"
+      }
+    },
+    {
+      "_key": "cmd_fix_interface_mtu",
+      "id": "cmd_fix_interface_mtu",
+      "label": "Remediation: Set MTU 1500",
+      "type": "Command",
+      "description": "인터페이스 MTU를 표준 1500으로 복구",
+      "details": {
+        "type": "Remediation",
+        "action": "hier_config_patch"
+      }
+    },
+    {
+      "_key": "symptom_bgp_idle",
+      "id": "symptom_bgp_idle",
+      "label": "BGP Stuck in Idle",
+      "type": "Symptom",
+      "description": "BGP 네이버가 Idle 또는 Idle (Admin) 상태에 멈춰 연결을 시작하지 못함",
+      "details": {
+        "severity": "CRITICAL",
+        "category": "BGP-FSM"
+      }
+    },
+    {
+      "_key": "rc_bgp_no_route",
+      "id": "rc_bgp_no_route",
+      "label": "No Route to Peer IP (IGP Unreachable)",
+      "type": "RootCause",
+      "description": "라우팅 테이블에 피어 IP로 가는 경로(Static/IGP)가 없음",
+      "details": {
+        "protocol": "IP/Routing",
+        "layer": "L3"
+      }
+    },
+    {
+      "_key": "rc_bgp_acl_filter",
+      "id": "rc_bgp_acl_filter",
+      "label": "TCP Port 179 Blocked by ACL / CoPP",
+      "type": "RootCause",
+      "description": "방화벽, 인터페이스 ACL 또는 CoPP에 의해 TCP 179번 포트 차단",
+      "details": {
+        "protocol": "TCP",
+        "layer": "L4"
+      }
+    },
+    {
+      "_key": "rc_bgp_multihop_missing",
+      "id": "rc_bgp_multihop_missing",
+      "label": "eBGP Multihop Missing (TTL=1 Drop)",
+      "type": "RootCause",
+      "description": "루프백이나 다중 홉 eBGP 피어링 시 TTL이 1로 제한되어 패킷 폐기",
+      "details": {
+        "protocol": "BGP",
+        "layer": "L3"
+      }
+    },
+    {
+      "_key": "ver_check_peer_route",
+      "id": "ver_check_peer_route",
+      "label": "Verify Peer Route & Ping",
+      "type": "Verification",
+      "description": "피어 IP로의 IP 경로 존재 여부 및 ICMP 통신 확인",
+      "details": {
+        "method": "Ping & Routing Table Check"
+      }
+    },
+    {
+      "_key": "cmd_ping_neighbor",
+      "id": "cmd_ping_neighbor",
+      "label": "ping <peer_ip>",
+      "type": "Command",
+      "description": "피어 IP 도달 가능성(ICMP Ping) 점검",
+      "details": {
+        "command": "ping 192.168.100.12"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_route_peer",
+      "id": "cmd_show_ip_route_peer",
+      "label": "show ip route <peer_ip>",
+      "type": "Command",
+      "description": "피어 IP 라우팅 엔트리 및 Next-Hop 확인",
+      "details": {
+        "command": "show ip route 192.168.100.12"
+      }
+    },
+    {
+      "_key": "ver_check_bgp_admin",
+      "id": "ver_check_bgp_admin",
+      "label": "Verify BGP Running Config",
+      "type": "Verification",
+      "description": "BGP 프로세스 내 neighbor shutdown 또는 ebgp-multihop 누락 확인",
+      "details": {
+        "method": "Config Inspection"
+      }
+    },
+    {
+      "_key": "cmd_show_run_bgp",
+      "id": "cmd_show_run_bgp",
+      "label": "show running-config | section router bgp",
+      "type": "Command",
+      "description": "BGP 전체 러닝 컨피그 확인",
+      "details": {
+        "command": "show running-config | section router bgp"
+      }
+    },
+    {
+      "_key": "cmd_fix_no_shutdown",
+      "id": "cmd_fix_no_shutdown",
+      "label": "Remediation: no neighbor shutdown",
+      "type": "Command",
+      "description": "BGP 피어 활성화 (no neighbor shutdown)",
+      "details": {
+        "type": "Remediation",
+        "action": "cli_remediation"
+      }
+    },
+    {
+      "_key": "cmd_fix_ebgp_multihop",
+      "id": "cmd_fix_ebgp_multihop",
+      "label": "Remediation: ebgp-multihop 2",
+      "type": "Command",
+      "description": "eBGP 다중 홉 TTL 설정 (neighbor ebgp-multihop 2)",
+      "details": {
+        "type": "Remediation",
+        "action": "hier_config_patch"
+      }
+    },
+    {
+      "_key": "cmd_fix_permit_tcp179",
+      "id": "cmd_fix_permit_tcp179",
+      "label": "Remediation: Permit TCP Port 179",
+      "type": "Command",
+      "description": "ACL/CoPP에 BGP 포트(TCP 179) 통과 룰 추가",
+      "details": {
+        "type": "Remediation",
+        "action": "cli_remediation"
+      }
+    },
+    {
+      "_key": "symptom_bgp_active",
+      "id": "symptom_bgp_active",
+      "label": "BGP Stuck in Active",
+      "type": "Symptom",
+      "description": "BGP 네이버가 TCP SYN 전송 후 응답을 받지 못해 Active 상태에 고착됨",
+      "details": {
+        "severity": "HIGH",
+        "category": "BGP-FSM"
+      }
+    },
+    {
+      "_key": "rc_bgp_update_source_missing",
+      "id": "rc_bgp_update_source_missing",
+      "label": "Missing update-source Loopback0",
+      "type": "RootCause",
+      "description": "Loopback 피어링 시 TCP 패킷 소스 IP가 물리 인터페이스로 발송됨",
+      "details": {
+        "protocol": "BGP",
+        "layer": "L3-L4"
+      }
+    },
+    {
+      "_key": "rc_bgp_as_mismatch",
+      "id": "rc_bgp_as_mismatch",
+      "label": "Remote-AS Number Mismatch",
+      "type": "RootCause",
+      "description": "로컬 라우터와 대향 라우터 간 설정된 AS 번호가 일치하지 않음",
+      "details": {
+        "protocol": "BGP",
+        "layer": "L7"
+      }
+    },
+    {
+      "_key": "rc_bgp_tcp_handshake_fail",
+      "id": "rc_bgp_tcp_handshake_fail",
+      "label": "TCP 3-Way Handshake Failure",
+      "type": "RootCause",
+      "description": "SYN-ACK가 도달하지 못하거나 소켓 바인딩 오류로 3-way 핸드셰이크 실패",
+      "details": {
+        "protocol": "TCP",
+        "layer": "L4"
+      }
+    },
+    {
+      "_key": "ver_check_bgp_update_source",
+      "id": "ver_check_bgp_update_source",
+      "label": "Verify TCP Socket & Source Binding",
+      "type": "Verification",
+      "description": "TCP 포트 179 연결 소켓의 Local IP / Foreign IP 바인딩 상태 점검",
+      "details": {
+        "method": "TCP Socket Inspection"
+      }
+    },
+    {
+      "_key": "cmd_show_tcp_brief",
+      "id": "cmd_show_tcp_brief",
+      "label": "show tcp brief",
+      "type": "Command",
+      "description": "활성 TCP 소켓 포트 및 상태(ESTAB/SYN_SENT) 확인",
+      "details": {
+        "command": "show tcp brief"
+      }
+    },
+    {
+      "_key": "cmd_fix_update_source",
+      "id": "cmd_fix_update_source",
+      "label": "Remediation: neighbor update-source",
+      "type": "Command",
+      "description": "피어에 update-source Loopback0 명시",
+      "details": {
+        "type": "Remediation",
+        "action": "hier_config_patch"
+      }
+    },
+    {
+      "_key": "cmd_fix_remote_as",
+      "id": "cmd_fix_remote_as",
+      "label": "Remediation: Correct remote-as",
+      "type": "Command",
+      "description": "대향 피어의 정확한 AS 번호로 수정",
+      "details": {
+        "type": "Remediation",
+        "action": "cli_remediation"
+      }
+    },
+    {
+      "_key": "symptom_bgp_flapping",
+      "id": "symptom_bgp_flapping",
+      "label": "BGP Session Flapping",
+      "type": "Symptom",
+      "description": "BGP 세션이 연결된 후 주기적으로 Reset 또는 끊어짐을 반복함",
+      "details": {
+        "severity": "HIGH",
+        "category": "BGP-Stability"
+      }
+    },
+    {
+      "_key": "rc_bgp_hold_timer_expired",
+      "id": "rc_bgp_hold_timer_expired",
+      "label": "Hold Timer Expired (Keepalive Drop)",
+      "type": "RootCause",
+      "description": "Keepalive 패킷이 제시간에 도착하지 않아 Hold Timer(기본 180초) 만료",
+      "details": {
+        "protocol": "BGP",
+        "layer": "L7"
+      }
+    },
+    {
+      "_key": "rc_bgp_large_update_mtu",
+      "id": "rc_bgp_large_update_mtu",
+      "label": "Large BGP Update Dropped by MTU",
+      "type": "RootCause",
+      "description": "Keepalive는 작아 통과하지만 많은 Prefix를 담은 Update 패킷이 MTU 초과로 드롭",
+      "details": {
+        "protocol": "TCP/IP",
+        "layer": "L3-L4"
+      }
+    },
+    {
+      "_key": "rc_bgp_duplicate_router_id",
+      "id": "rc_bgp_duplicate_router_id",
+      "label": "Duplicate BGP Router-ID Conflict",
+      "type": "RootCause",
+      "description": "두 라우터가 동일한 Router-ID를 사용하여 연결 시 세션 충돌 발생",
+      "details": {
+        "protocol": "BGP",
+        "layer": "L7"
+      }
+    },
+    {
+      "_key": "ver_check_bgp_flap_history",
+      "id": "ver_check_bgp_flap_history",
+      "label": "Inspect Flap Notification Logs",
+      "type": "Verification",
+      "description": "BGP 에러 로그 및 Last Read/Write 통계 확인",
+      "details": {
+        "method": "Log & Notification Inspection"
+      }
+    },
+    {
+      "_key": "cmd_show_log_bgp",
+      "id": "cmd_show_log_bgp",
+      "label": "show log | include BGP",
+      "type": "Command",
+      "description": "BGP 세션 리셋 에러 메시지(NOTIFICATION) 필터링",
+      "details": {
+        "command": "show log | include BGP"
+      }
+    },
+    {
+      "_key": "cmd_fix_tcp_mss",
+      "id": "cmd_fix_tcp_mss",
+      "label": "Remediation: ip tcp adjust-mss 1360",
+      "type": "Command",
+      "description": "인터페이스에 TCP MSS 자동 조정 적용하여 대형 Update 드롭 방지",
+      "details": {
+        "type": "Remediation",
+        "action": "hier_config_patch"
+      }
+    },
+    {
+      "_key": "cmd_fix_bgp_router_id",
+      "id": "cmd_fix_bgp_router_id",
+      "label": "Remediation: bgp router-id <unique>",
+      "type": "Command",
+      "description": "고유한 루프백 IP로 BGP Router-ID 고정",
+      "details": {
+        "type": "Remediation",
+        "action": "hier_config_patch"
+      }
+    },
+    {
+      "_key": "symptom_bgp_routes_inaccessible",
+      "id": "symptom_bgp_routes_inaccessible",
+      "label": "BGP Routes Inaccessible / Invalid",
+      "type": "Symptom",
+      "description": "BGP 세션은 Established이나 수신된 경로의 Next-Hop이 유효하지 않아 라우팅 테이블(RIB) 미등록",
+      "details": {
+        "severity": "HIGH",
+        "category": "BGP-Routing"
+      }
+    },
+    {
+      "_key": "rc_bgp_missing_next_hop_self",
+      "id": "rc_bgp_missing_next_hop_self",
+      "label": "Unadvertised eBGP Subnet without next-hop-self",
+      "type": "RootCause",
+      "description": "eBGP 링크 대역이 내부 IGP(OSPF/IS-IS)에 network 선언이나 재분배(redistribute)되지 않았으며 iBGP next-hop-self도 누락된 경우에 발생 (OSPF/IGP로 이미 도달 가능한 경우 정상 동작)",
+      "details": {
+        "protocol": "BGP/iBGP",
+        "layer": "L3"
+      }
+    },
+    {
+      "_key": "rc_bgp_next_hop_unreachable",
+      "id": "rc_bgp_next_hop_unreachable",
+      "label": "Next-Hop IP Not Advertised in IGP",
+      "type": "RootCause",
+      "description": "Next-Hop 주소가 OSPF/IS-IS/Static 등 내부 라우팅에 광고되지 않아 재귀적 라우팅(Recursive Routing) 실패",
+      "details": {
+        "protocol": "IGP",
+        "layer": "L3"
+      }
+    },
+    {
+      "_key": "rc_bgp_nexthop_missing_ospf",
+      "id": "rc_bgp_nexthop_missing_ospf",
+      "label": "Next-Hop Unreachable via OSPF Underlay",
+      "type": "RootCause",
+      "description": "BGP Next-Hop 주소 대역이 OSPF 프로세스에 포함되지 않았거나 OSPF 네이버 인접성 다운",
+      "details": {
+        "protocol": "OSPF",
+        "layer": "L3"
+      }
+    },
+    {
+      "_key": "rc_bgp_nexthop_missing_isis",
+      "id": "rc_bgp_nexthop_missing_isis",
+      "label": "Next-Hop Unreachable via IS-IS Underlay",
+      "type": "RootCause",
+      "description": "BGP Next-Hop 인터페이스에 IS-IS 미설정 또는 IS-IS Adjacency 부재로 경로 미등록",
+      "details": {
+        "protocol": "IS-IS",
+        "layer": "L3"
+      }
+    },
+    {
+      "_key": "rc_bgp_nexthop_missing_static",
+      "id": "rc_bgp_nexthop_missing_static",
+      "label": "Next-Hop Missing via Static Route",
+      "type": "RootCause",
+      "description": "BGP Next-Hop IP에 대한 정적 라우팅(ip route) 미설정 또는 넥스트홉 게이트웨이 유실",
+      "details": {
+        "protocol": "Static Routing",
+        "layer": "L3"
+      }
+    },
+    {
+      "_key": "ver_check_ospf_underlay",
+      "id": "ver_check_ospf_underlay",
+      "label": "Verify OSPF Underlay Route & Neighbor",
+      "type": "Verification",
+      "description": "OSPF 라우팅 테이블(show ip route ospf) 및 OSPF 네이버 인접성 확인",
+      "details": {
+        "method": "OSPF Underlay Verification"
+      }
+    },
+    {
+      "_key": "ver_check_isis_underlay",
+      "id": "ver_check_isis_underlay",
+      "label": "Verify IS-IS Underlay Adjacency & Database",
+      "type": "Verification",
+      "description": "IS-IS 인접성(show isis neighbors) 및 IS-IS 라우팅 테이블(show ip route isis) 확인",
+      "details": {
+        "method": "IS-IS Underlay Verification"
+      }
+    },
+    {
+      "_key": "ver_check_static_underlay",
+      "id": "ver_check_static_underlay",
+      "label": "Verify Static Route to Next-Hop",
+      "type": "Verification",
+      "description": "정적 라우팅 테이블(show ip route static) 내 Next-Hop 대상 경로 확인",
+      "details": {
+        "method": "Static Route Verification"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_bgp_prefix",
+      "id": "cmd_show_ip_bgp_prefix",
+      "label": "show ip bgp",
+      "type": "Command",
+      "description": "전체 BGP 테이블 경로 및 상태 확인",
+      "details": {
+        "command": "show ip bgp"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_route_nexthop",
+      "id": "cmd_show_ip_route_nexthop",
+      "label": "show ip route <next_hop>",
+      "type": "Command",
+      "description": "Next-Hop IP가 라우팅 테이블에 존재하는지 확인",
+      "details": {
+        "command": "show ip route 192.168.100.1"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_route_ospf",
+      "id": "cmd_show_ip_route_ospf",
+      "label": "show ip route ospf",
+      "type": "Command",
+      "description": "OSPF로 학습된 언더레이 라우팅 테이블 확인",
+      "details": {
+        "command": "show ip route ospf"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_route_isis",
+      "id": "cmd_show_ip_route_isis",
+      "label": "show ip route isis",
+      "type": "Command",
+      "description": "IS-IS로 학습된 언더레이 라우팅 테이블 확인",
+      "details": {
+        "command": "show ip route isis"
+      }
+    },
+    {
+      "_key": "cmd_show_isis_neighbors",
+      "id": "cmd_show_isis_neighbors",
+      "label": "show isis neighbors",
+      "type": "Command",
+      "description": "IS-IS CLNS 인접성 상태(Level-1/Level-2) 확인",
+      "details": {
+        "command": "show isis neighbors"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_route_static",
+      "id": "cmd_show_ip_route_static",
+      "label": "show ip route static",
+      "type": "Command",
+      "description": "설정된 정적 경로(Static Route) 확인",
+      "details": {
+        "command": "show ip route static"
+      }
+    },
+    {
+      "_key": "cmd_fix_redistribute_or_declare_ospf",
+      "id": "cmd_fix_redistribute_or_declare_ospf",
+      "label": "Remediation Option B: router ospf / redistribute connected (or network eBGP subnet)",
+      "type": "Command",
+      "description": "외부 eBGP 링크 서브넷을 OSPF 프로세스에 선언하거나 redistribute connected하여 내부 iBGP 피어에 도달성 제공",
+      "details": {
+        "type": "Remediation",
+        "action": "cli_remediation"
+      }
+    },
+    {
+      "_key": "cmd_fix_add_static_route",
+      "id": "cmd_fix_add_static_route",
+      "label": "Remediation: ip route <next_hop> 255.255.255.255 <gw>",
+      "type": "Command",
+      "description": "BGP Next-Hop IP로 향하는 정적 경로(Static Route) 추가",
+      "details": {
+        "type": "Remediation",
+        "action": "cli_remediation"
+      }
+    },
+    {
+      "_key": "symptom_ospf_exstart",
+      "id": "symptom_ospf_exstart",
+      "label": "OSPF Stuck in ExStart",
+      "type": "Symptom",
+      "description": "OSPF 네이버 상태가 DBD 교환 단계(ExStart/Exchange)에 고착됨",
+      "details": {
+        "severity": "HIGH",
+        "category": "OSPF"
+      }
+    },
+    {
+      "_key": "rc_ospf_mtu_mismatch",
+      "id": "rc_ospf_mtu_mismatch",
+      "label": "OSPF MTU Mismatch",
+      "type": "RootCause",
+      "description": "양단 인터페이스 MTU가 일치하지 않아 DBD 수신 실패",
+      "details": {
+        "protocol": "OSPF",
+        "layer": "L3"
+      }
+    },
+    {
+      "_key": "ver_check_ospf_neighbor",
+      "id": "ver_check_ospf_neighbor",
+      "label": "Verify OSPF Neighbor",
+      "type": "Verification",
+      "description": "OSPF 인접 관계 상태 및 데드 타이머 점검",
+      "details": {
+        "method": "OSPF CLI Verification"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_ospf_neighbor",
+      "id": "cmd_show_ip_ospf_neighbor",
+      "label": "show ip ospf neighbor",
+      "type": "Command",
+      "description": "OSPF 네이버 상태 및 인터페이스 확인",
+      "details": {
+        "command": "show ip ospf neighbor"
+      }
+    },
+    {
+      "_key": "symptom_input_errors",
+      "id": "symptom_input_errors",
+      "label": "Interface Input/CRC Errors",
+      "type": "Symptom",
+      "description": "인터페이스 입력 에러 및 CRC 카운터 급증으로 패킷 드롭 발생",
+      "details": {
+        "severity": "MEDIUM",
+        "category": "Hardware/L2"
+      }
+    },
+    {
+      "_key": "rc_duplex_mismatch",
+      "id": "rc_duplex_mismatch",
+      "label": "Duplex Mismatch (Half/Full)",
+      "type": "RootCause",
+      "description": "대향 장비와의 Duplex 설정 불일치로 인한 Late Collision",
+      "details": {
+        "protocol": "Ethernet",
+        "layer": "L2"
+      }
+    },
+    {
+      "_key": "ver_check_interface_counters",
+      "id": "ver_check_interface_counters",
+      "label": "Inspect Interface Counters",
+      "type": "Verification",
+      "description": "에러 카운터, Collision 및 Duplex 상태 점검",
+      "details": {
+        "method": "Detailed Interface Stats"
+      }
+    },
+    {
+      "_key": "cmd_show_interfaces",
+      "id": "cmd_show_interfaces",
+      "label": "show interfaces",
+      "type": "Command",
+      "description": "인터페이스 상세 카운터 및 Duplex 모드 점검",
+      "details": {
+        "command": "show interfaces GigabitEthernet1"
+      }
+    },
+    {
+      "_key": "cmd_fix_duplex_auto",
+      "id": "cmd_fix_duplex_auto",
+      "label": "Remediation: Auto Duplex/Speed",
+      "type": "Command",
+      "description": "인터페이스를 speed auto 및 duplex auto 로 복구",
+      "details": {
+        "type": "Remediation",
+        "action": "hier_config_patch"
+      }
+    },
+    {
+      "_key": "rc_interface_acl_blocked",
+      "id": "rc_interface_acl_blocked",
+      "label": "Interface ACL (Access-List) Filter Blocking",
+      "type": "RootCause",
+      "description": "인터페이스에 적용된 인바운드/아웃바운드 ACL(ip access-group)에 의해 라우팅 제어 패킷(TCP 179, OSPF 등) 또는 데이터 트래픽 차단",
+      "details": {
+        "protocol": "IP/Security",
+        "layer": "Layer 3 (Security/Filter)",
+        "osi_layer": "L3"
+      }
+    },
+    {
+      "_key": "rc_pbr_policy_override",
+      "id": "rc_pbr_policy_override",
+      "label": "Policy-Based Routing (PBR) Override / Misconfiguration",
+      "type": "RootCause",
+      "description": "인터페이스에 설정된 PBR(ip policy route-map)이 일반 라우팅 테이블 조회를 우회하거나 Next-Hop을 비정상 경로/Null0로 강제 변경",
+      "details": {
+        "protocol": "IP/PolicyRouting",
+        "layer": "Layer 3 (Policy Routing)",
+        "osi_layer": "L3"
+      }
+    },
+    {
+      "_key": "ver_check_interface_acl_pbr",
+      "id": "ver_check_interface_acl_pbr",
+      "label": "Verify Interface ACL & Policy Routing (OSI L3 Security/PBR)",
+      "type": "Verification",
+      "description": "인터페이스 인바운드/아웃바운드 ACL 적용 상태 및 PBR(Policy Routing) 설정 점검",
+      "details": {
+        "layer": "OSI Layer 3",
+        "method": "Interface Security & Policy Inspection"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_interface",
+      "id": "cmd_show_ip_interface",
+      "label": "show ip interface",
+      "type": "Command",
+      "description": "인터페이스별 Inbound/Outbound ACL 및 Policy Routing(PBR) 적용 여부 확인",
+      "details": {
+        "command": "show ip interface",
+        "osi_layer": "Layer 3"
+      }
+    },
+    {
+      "_key": "cmd_show_access_lists",
+      "id": "cmd_show_access_lists",
+      "label": "show access-lists",
+      "type": "Command",
+      "description": "ACL 룰셋 정의 및 deny/permit 매칭 카운터 조사",
+      "details": {
+        "command": "show access-lists",
+        "osi_layer": "Layer 3"
+      }
+    },
+    {
+      "_key": "cmd_show_ip_policy",
+      "id": "cmd_show_ip_policy",
+      "label": "show ip policy",
+      "type": "Command",
+      "description": "활성화된 인터페이스별 PBR 정책 및 Route-Map 바인딩 확인",
+      "details": {
+        "command": "show ip policy",
+        "osi_layer": "Layer 3"
+      }
+    },
+    {
+      "_key": "cmd_show_route_map",
+      "id": "cmd_show_route_map",
+      "label": "show route-map",
+      "type": "Command",
+      "description": "Route-Map 절(Clause) 매칭 조건 및 set next-hop 액션 분석",
+      "details": {
+        "command": "show route-map",
+        "osi_layer": "Layer 3"
+      }
+    },
+    {
+      "_key": "cmd_fix_permit_acl_routing",
+      "id": "cmd_fix_permit_acl_routing",
+      "label": "Remediation: Permit Control Traffic in ACL",
+      "type": "Command",
+      "description": "ACL에 BGP(TCP 179) 또는 OSPF/트래픽 허용 룰 추가 (ip access-list extended <ACL> / permit tcp any any eq 179)",
+      "details": {
+        "type": "Remediation",
+        "action": "hier_config_patch"
+      }
+    },
+    {
+      "_key": "cmd_fix_remove_interface_acl",
+      "id": "cmd_fix_remove_interface_acl",
+      "label": "Remediation: Remove Blocking Interface ACL",
+      "type": "Command",
+      "description": "해당 인터페이스에서 차단 ACL 제거 (no ip access-group <ACL> in/out)",
+      "details": {
+        "type": "Remediation",
+        "action": "cli_remediation"
+      }
+    },
+    {
+      "_key": "cmd_fix_remove_or_correct_pbr",
+      "id": "cmd_fix_remove_or_correct_pbr",
+      "label": "Remediation: Remove or Correct PBR Policy",
+      "type": "Command",
+      "description": "비정상 PBR 해제 (no ip policy route-map <MAP>) 또는 정상 next-hop으로 route-map 수정",
+      "details": {
+        "type": "Remediation",
+        "action": "cli_remediation"
+      }
+    },
+    {
+      "_key": "symptom_ospf_down",
+      "id": "symptom_ospf_down",
+      "label": "OSPF Neighbor Down",
+      "type": "Symptom",
+      "description": "OSPF 네이버 인접성이 수립되지 않거나 ExStart/Down에 머무름",
+      "details": {
+        "category": "Network-Symptom"
+      }
+    },
+    {
+      "_key": "symptom_packet_drop",
+      "id": "symptom_packet_drop",
+      "label": "Packet Drop / Traffic Blackhole",
+      "type": "Symptom",
+      "description": "목적지로 전달되는 데이터 트래픽이 중간 경로에서 폐기됨",
+      "details": {
+        "category": "Network-Symptom"
+      }
+    },
+    {
+      "_key": "symptom_route_missing",
+      "id": "symptom_route_missing",
+      "label": "Route Missing in RIB",
+      "type": "Symptom",
+      "description": "라우팅 테이블에서 특정 목적지 서브넷이 유실됨",
+      "details": {
+        "category": "Network-Symptom"
+      }
+    },
+    {
+      "_key": "symptom_interface_down",
+      "id": "symptom_interface_down",
+      "label": "Interface Link Down",
+      "type": "Symptom",
+      "description": "물리 또는 논리 인터페이스 상태가 Down/Down임",
+      "details": {
+        "category": "Network-Symptom"
+      }
+    },
+    {
+      "_key": "rc_ospf_area_mismatch",
+      "id": "rc_ospf_area_mismatch",
+      "label": "OSPF Area ID Mismatch",
+      "type": "RootCause",
+      "description": "양단 인터페이스의 OSPF Area 번호 불일치",
+      "details": {
+        "layer": "Layer 3 (Underlay)"
+      }
+    },
+    {
+      "_key": "rc_ospf_hello_dead_mismatch",
+      "id": "rc_ospf_hello_dead_mismatch",
+      "label": "OSPF Hello/Dead Timer Mismatch",
+      "type": "RootCause",
+      "description": "양단 인터페이스의 OSPF Hello 및 Dead 타이머 불일치",
+      "details": {
+        "layer": "Layer 3 (Underlay)"
+      }
+    },
+    {
+      "_key": "rc_missing_route",
+      "id": "rc_missing_route",
+      "label": "Route Missing in Routing Table",
+      "type": "RootCause",
+      "description": "라우팅 테이블에 목적지 경로 부재",
+      "details": {
+        "layer": "Layer 3 (Routing)"
+      }
+    },
+    {
+      "_key": "rc_routing_loop",
+      "id": "rc_routing_loop",
+      "label": "Forwarding Loop Detected",
+      "type": "RootCause",
+      "description": "라우팅 루프로 인한 패킷 무한 홉 순환",
+      "details": {
+        "layer": "Layer 3 (Routing)"
+      }
+    },
+    {
+      "_key": "rc_ip_collision",
+      "id": "rc_ip_collision",
+      "label": "IP Address Collision / Duplicate",
+      "type": "RootCause",
+      "description": "동일 IP 주소가 서로 다른 인터페이스에 중복 할당됨",
+      "details": {
+        "layer": "Layer 3 (IP)"
+      }
+    },
+    {
+      "_key": "rc_vlan_mismatch",
+      "id": "rc_vlan_mismatch",
+      "label": "VLAN ID / Trunk Allowed Mismatch",
+      "type": "RootCause",
+      "description": "스위치포트 간 VLAN ID 또는 Trunk Allowed 불일치",
+      "details": {
+        "layer": "Layer 2 (VLAN)"
+      }
+    },
+    {
+      "_key": "rc_fhrp_split_brain",
+      "id": "rc_fhrp_split_brain",
+      "label": "HSRP / VRRP Split-Brain Active",
+      "type": "RootCause",
+      "description": "이중화 프로토콜 헬로 단절로 두 장비 모두 Active 상태",
+      "details": {
+        "layer": "Layer 3 (FHRP)"
+      }
+    },
+    {
+      "_key": "rc_lacp_misconfig",
+      "id": "rc_lacp_misconfig",
+      "label": "LACP / EtherChannel Misconfiguration",
+      "type": "RootCause",
+      "description": "포트채널 모드 불일치 또는 채널 멤버 속성 상이",
+      "details": {
+        "layer": "Layer 2 (LAG)"
+      }
+    },
+    {
+      "_key": "rc_vxlan_tunnel_down",
+      "id": "rc_vxlan_tunnel_down",
+      "label": "VXLAN Tunnel Down (NVE Unreachable)",
+      "type": "RootCause",
+      "description": "언더레이 도달 불능으로 인한 VTEP 피어링 다운",
+      "details": {
+        "layer": "Layer 3 (Overlay)"
+      }
+    },
+    {
+      "_key": "rc_vxlan_vni_missing",
+      "id": "rc_vxlan_vni_missing",
+      "label": "VXLAN VNI Unmapped",
+      "type": "RootCause",
+      "description": "VNI 테넌트 매핑 누락으로 인한 패킷 드롭",
+      "details": {
+        "layer": "Layer 3 (Overlay)"
+      }
+    },
+    {
+      "_key": "rc_ipsec_tunnel_down",
+      "id": "rc_ipsec_tunnel_down",
+      "label": "IPsec VPN Tunnel Down",
+      "type": "RootCause",
+      "description": "IKE Phase 1 또는 2 불일치로 터널 다운",
+      "details": {
+        "layer": "Layer 3 (VPN)"
+      }
+    },
+    {
+      "_key": "rc_ipsec_auth_mismatch",
+      "id": "rc_ipsec_auth_mismatch",
+      "label": "IPsec Pre-Shared Key Mismatch",
+      "type": "RootCause",
+      "description": "IPsec 사전 공유 키(PSK) 불일치",
+      "details": {
+        "layer": "Layer 3 (VPN)"
+      }
+    },
+    {
+      "_key": "rc_system_clock_skew",
+      "id": "rc_system_clock_skew",
+      "label": "System Clock Skew (NTP Desync)",
+      "type": "RootCause",
+      "description": "NTP 동기화 실패로 인증서 및 세션 만료",
+      "details": {
+        "layer": "Management"
+      }
+    },
+    {
+      "_key": "rc_snmp_acl_blocked",
+      "id": "rc_snmp_acl_blocked",
+      "label": "SNMP Management ACL Blocked",
+      "type": "RootCause",
+      "description": "NMS 서버 IP가 SNMP 커뮤니티 ACL에 의해 차단됨",
+      "details": {
+        "layer": "Management"
+      }
+    },
+    {
+      "_key": "rc_aaa_login_failure",
+      "id": "rc_aaa_login_failure",
+      "label": "AAA Login Authentication Vulnerability",
+      "type": "RootCause",
+      "description": "VTY 라인 인증 누락 및 취약점",
+      "details": {
+        "layer": "Security"
+      }
+    },
+    {
+      "_key": "rc_vip_unreachable",
+      "id": "rc_vip_unreachable",
+      "label": "Virtual Server VIP Unreachable",
+      "type": "RootCause",
+      "description": "로드밸런서 VIP 바인딩 오류",
+      "details": {
+        "layer": "L4-L7"
+      }
+    },
+    {
+      "_key": "rc_config_syntax_error",
+      "id": "rc_config_syntax_error",
+      "label": "Configuration Syntax Parse Warning",
+      "type": "RootCause",
+      "description": "라우터 설정 내 비표준 구문 및 파싱 오류",
+      "details": {
+        "layer": "Config Hygiene"
+      }
+    },
+    {
+      "_key": "rc_undefined_acl_reference",
+      "id": "rc_undefined_acl_reference",
+      "label": "Undefined ACL Reference",
+      "type": "RootCause",
+      "description": "정의되지 않은 ACL을 인터페이스에서 참조",
+      "details": {
+        "layer": "Config Hygiene"
+      }
+    },
+    {
+      "_key": "rc_unused_policy_waste",
+      "id": "rc_unused_policy_waste",
+      "label": "Unused Policy / Orphan Structure",
+      "type": "RootCause",
+      "description": "사용되지 않는 고아 라우트맵 및 ACL 방치",
+      "details": {
+        "layer": "Config Hygiene"
+      }
+    },
+    {
+      "_key": "rc_node_resolution_failed",
+      "id": "rc_node_resolution_failed",
+      "label": "Node Specifier Resolution Failed",
+      "type": "RootCause",
+      "description": "명세자 질의에 일치하는 장비 없음",
+      "details": {
+        "layer": "System"
+      }
+    },
+    {
+      "_key": "rc_api_unsupported",
+      "id": "rc_api_unsupported",
+      "label": "Batfish API Unsupported",
+      "type": "RootCause",
+      "description": "현재 버전에서 지원되지 않는 쿼리",
+      "details": {
+        "layer": "System"
+      }
+    },
+    {
+      "_key": "ver_bf_bgpEdges",
+      "id": "ver_bf_bgpEdges",
+      "label": "Verify bgpEdges",
+      "type": "Verification",
+      "description": "BGP 피어 세션 수립 엣지 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 7 (BGP Peering)",
+        "batfish_question": "bf.q.bgpEdges()",
+        "sample_call": "bf.q.bgpEdges()",
+        "cli_command": "show ip bgp summary"
+      }
+    },
+    {
+      "_key": "ver_bf_bgpPeerConfiguration",
+      "id": "ver_bf_bgpPeerConfiguration",
+      "label": "Verify bgpPeerConfiguration",
+      "type": "Verification",
+      "description": "BGP 피어별 AS, 인터페이스, Remote-IP 등 설정 속성 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 7 (BGP Peering)",
+        "batfish_question": "bf.q.bgpPeerConfiguration()",
+        "sample_call": "bf.q.bgpPeerConfiguration(nodes='{node}')",
+        "cli_command": "show ip bgp neighbors"
+      }
+    },
+    {
+      "_key": "ver_bf_bgpProcessConfiguration",
+      "id": "ver_bf_bgpProcessConfiguration",
+      "label": "Verify bgpProcessConfiguration",
+      "type": "Verification",
+      "description": "BGP 프로세스 전역 설정(Router ID, AS, Multipath 등) 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 7 (BGP Peering)",
+        "batfish_question": "bf.q.bgpProcessConfiguration()",
+        "sample_call": "bf.q.bgpProcessConfiguration(nodes='{node}')",
+        "cli_command": "show running-config | section router bgp"
+      }
+    },
+    {
+      "_key": "ver_bf_bgpRib",
+      "id": "ver_bf_bgpRib",
+      "label": "Verify bgpRib",
+      "type": "Verification",
+      "description": "BGP 라우팅 테이블(RIB), AS-Path, Local-Pref, Next-Hop 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 7 (BGP Peering)",
+        "batfish_question": "bf.q.bgpRib()",
+        "sample_call": "bf.q.bgpRib(nodes='{node}')",
+        "cli_command": "show ip bgp"
+      }
+    },
+    {
+      "_key": "ver_bf_bgpSessionCompatibility",
+      "id": "ver_bf_bgpSessionCompatibility",
+      "label": "Verify bgpSessionCompatibility",
+      "type": "Verification",
+      "description": "양단 장비 간 BGP 피어링 설정 파라미터 정합성 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 7 (BGP Peering)",
+        "batfish_question": "bf.q.bgpSessionCompatibility()",
+        "sample_call": "bf.q.bgpSessionCompatibility(nodes='{node}')",
+        "cli_command": "show ip bgp neighbors"
+      }
+    },
+    {
+      "_key": "ver_bf_bgpSessionStatus",
+      "id": "ver_bf_bgpSessionStatus",
+      "label": "Verify bgpSessionStatus",
+      "type": "Verification",
+      "description": "실시간 BGP 피어링 FSM 세션 상태(Established/Idle/Active) 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 7 (BGP Peering)",
+        "batfish_question": "bf.q.bgpSessionStatus()",
+        "sample_call": "bf.q.bgpSessionStatus(nodes='{node}')",
+        "cli_command": "show ip bgp summary"
+      }
+    },
+    {
+      "_key": "ver_bf_comparePeerGroupPolicies",
+      "id": "ver_bf_comparePeerGroupPolicies",
+      "label": "Verify comparePeerGroupPolicies",
+      "type": "Verification",
+      "description": "BGP 피어 그룹 및 정책 템플릿 변경 전/후 정합성 차분 비교",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 7 (BGP Peering)",
+        "batfish_question": "bf.q.comparePeerGroupPolicies()",
+        "sample_call": "bf.q.comparePeerGroupPolicies()",
+        "cli_command": "show ip bgp template peer-policy"
+      }
+    },
+    {
+      "_key": "cmd_pair_comparePeerGroupPolicies",
+      "id": "cmd_pair_comparePeerGroupPolicies",
+      "label": "show ip bgp template peer-policy",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for comparePeerGroupPolicies",
+      "details": {
+        "command": "show ip bgp template peer-policy",
+        "batfish_question": "bf.q.comparePeerGroupPolicies()",
+        "layer": "Layer 7 (BGP Peering)",
+        "expected_output_hint": "Expected output matching Batfish comparePeerGroupPolicies results"
+      }
+    },
+    {
+      "_key": "ver_bf_ospfAreaConfiguration",
+      "id": "ver_bf_ospfAreaConfiguration",
+      "label": "Verify ospfAreaConfiguration",
+      "type": "Verification",
+      "description": "OSPF Area ID 및 Area 타입(Stub/NSSA) 설정 속성 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.ospfAreaConfiguration()",
+        "sample_call": "bf.q.ospfAreaConfiguration(nodes='{node}')",
+        "cli_command": "show ip ospf"
+      }
+    },
+    {
+      "_key": "cmd_pair_ospfAreaConfiguration",
+      "id": "cmd_pair_ospfAreaConfiguration",
+      "label": "show ip ospf",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for ospfAreaConfiguration",
+      "details": {
+        "command": "show ip ospf",
+        "batfish_question": "bf.q.ospfAreaConfiguration()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish ospfAreaConfiguration results"
+      }
+    },
+    {
+      "_key": "ver_bf_ospfEdges",
+      "id": "ver_bf_ospfEdges",
+      "label": "Verify ospfEdges",
+      "type": "Verification",
+      "description": "양단 장비 간 Full 상태 OSPF 인접 엣지 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.ospfEdges()",
+        "sample_call": "bf.q.ospfEdges()",
+        "cli_command": "show ip ospf neighbor"
+      }
+    },
+    {
+      "_key": "ver_bf_ospfInterfaceConfiguration",
+      "id": "ver_bf_ospfInterfaceConfiguration",
+      "label": "Verify ospfInterfaceConfiguration",
+      "type": "Verification",
+      "description": "인터페이스별 OSPF Cost, Hello/Dead 타이머, Network Type 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.ospfInterfaceConfiguration()",
+        "sample_call": "bf.q.ospfInterfaceConfiguration(nodes='{node}')",
+        "cli_command": "show ip ospf interface"
+      }
+    },
+    {
+      "_key": "cmd_pair_ospfInterfaceConfiguration",
+      "id": "cmd_pair_ospfInterfaceConfiguration",
+      "label": "show ip ospf interface",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for ospfInterfaceConfiguration",
+      "details": {
+        "command": "show ip ospf interface",
+        "batfish_question": "bf.q.ospfInterfaceConfiguration()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish ospfInterfaceConfiguration results"
+      }
+    },
+    {
+      "_key": "ver_bf_ospfProcessConfiguration",
+      "id": "ver_bf_ospfProcessConfiguration",
+      "label": "Verify ospfProcessConfiguration",
+      "type": "Verification",
+      "description": "OSPF 프로세스 전역 설정 및 Router-ID 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.ospfProcessConfiguration()",
+        "sample_call": "bf.q.ospfProcessConfiguration(nodes='{node}')",
+        "cli_command": "show ip ospf"
+      }
+    },
+    {
+      "_key": "ver_bf_ospfSessionCompatibility",
+      "id": "ver_bf_ospfSessionCompatibility",
+      "label": "Verify ospfSessionCompatibility",
+      "type": "Verification",
+      "description": "양단 장비 간 OSPF 파라미터 정합성 검증 (Router-ID 충돌, Area/MTU 불일치)",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.ospfSessionCompatibility()",
+        "sample_call": "bf.q.ospfSessionCompatibility(nodes='{node}')",
+        "cli_command": "show ip ospf neighbor"
+      }
+    },
+    {
+      "_key": "ver_bf_isisEdges",
+      "id": "ver_bf_isisEdges",
+      "label": "Verify isisEdges",
+      "type": "Verification",
+      "description": "IS-IS 인접 이웃 엣지 및 회선 상태 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.isisEdges()",
+        "sample_call": "bf.q.isisEdges()",
+        "cli_command": "show isis neighbors"
+      }
+    },
+    {
+      "_key": "ver_bf_eigrpEdges",
+      "id": "ver_bf_eigrpEdges",
+      "label": "Verify eigrpEdges",
+      "type": "Verification",
+      "description": "EIGRP 인접 이웃 엣지 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.eigrpEdges()",
+        "sample_call": "bf.q.eigrpEdges()",
+        "cli_command": "show ip eigrp neighbors"
+      }
+    },
+    {
+      "_key": "cmd_pair_eigrpEdges",
+      "id": "cmd_pair_eigrpEdges",
+      "label": "show ip eigrp neighbors",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for eigrpEdges",
+      "details": {
+        "command": "show ip eigrp neighbors",
+        "batfish_question": "bf.q.eigrpEdges()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish eigrpEdges results"
+      }
+    },
+    {
+      "_key": "ver_bf_evpnL3VniProperties",
+      "id": "ver_bf_evpnL3VniProperties",
+      "label": "Verify evpnL3VniProperties",
+      "type": "Verification",
+      "description": "EVPN Layer 3 VNI 및 테넌트 VRF 매핑 속성 분석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.evpnL3VniProperties()",
+        "sample_call": "bf.q.evpnL3VniProperties(nodes='{node}')",
+        "cli_command": "show nve vni"
+      }
+    },
+    {
+      "_key": "cmd_pair_evpnL3VniProperties",
+      "id": "cmd_pair_evpnL3VniProperties",
+      "label": "show nve vni",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for evpnL3VniProperties",
+      "details": {
+        "command": "show nve vni",
+        "batfish_question": "bf.q.evpnL3VniProperties()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish evpnL3VniProperties results"
+      }
+    },
+    {
+      "_key": "ver_bf_evpnRib",
+      "id": "ver_bf_evpnRib",
+      "label": "Verify evpnRib",
+      "type": "Verification",
+      "description": "EVPN Type-2/Type-5 라우트 BGP RIB 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 7 (BGP Peering)",
+        "batfish_question": "bf.q.evpnRib()",
+        "sample_call": "bf.q.evpnRib(nodes='{node}')",
+        "cli_command": "show bgp l2vpn evpn"
+      }
+    },
+    {
+      "_key": "cmd_pair_evpnRib",
+      "id": "cmd_pair_evpnRib",
+      "label": "show bgp l2vpn evpn",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for evpnRib",
+      "details": {
+        "command": "show bgp l2vpn evpn",
+        "batfish_question": "bf.q.evpnRib()",
+        "layer": "Layer 7 (BGP Peering)",
+        "expected_output_hint": "Expected output matching Batfish evpnRib results"
+      }
+    },
+    {
+      "_key": "ver_bf_prefixTracer",
+      "id": "ver_bf_prefixTracer",
+      "label": "Verify prefixTracer",
+      "type": "Verification",
+      "description": "특정 IP Prefix가 어느 노드를 거쳐 학습/광고되었는지 경로 추적",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.prefixTracer()",
+        "sample_call": "bf.q.prefixTracer(prefix='{prefix}')",
+        "cli_command": "show ip route {prefix}"
+      }
+    },
+    {
+      "_key": "cmd_pair_prefixTracer",
+      "id": "cmd_pair_prefixTracer",
+      "label": "show ip route {prefix}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for prefixTracer",
+      "details": {
+        "command": "show ip route {prefix}",
+        "batfish_question": "bf.q.prefixTracer()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish prefixTracer results"
+      }
+    },
+    {
+      "_key": "ver_bf_routes",
+      "id": "ver_bf_routes",
+      "label": "Verify routes",
+      "type": "Verification",
+      "description": "통합 라우팅 테이블(RIB) 활성 경로 및 Next-Hop 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.routes()",
+        "sample_call": "bf.q.routes(nodes='{node}')",
+        "cli_command": "show ip route"
+      }
+    },
+    {
+      "_key": "cmd_pair_routes",
+      "id": "cmd_pair_routes",
+      "label": "show ip route",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for routes",
+      "details": {
+        "command": "show ip route",
+        "batfish_question": "bf.q.routes()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish routes results"
+      }
+    },
+    {
+      "_key": "ver_bf_lpmRoutes",
+      "id": "ver_bf_lpmRoutes",
+      "label": "Verify lpmRoutes",
+      "type": "Verification",
+      "description": "특정 목적지 IP에 대한 최장 일치(Longest Prefix Match) 경로 검색",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.lpmRoutes()",
+        "sample_call": "bf.q.lpmRoutes(ip='{ip}')",
+        "cli_command": "show ip route {ip} longer-prefixes"
+      }
+    },
+    {
+      "_key": "cmd_pair_lpmRoutes",
+      "id": "cmd_pair_lpmRoutes",
+      "label": "show ip route {ip} longer-prefixes",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for lpmRoutes",
+      "details": {
+        "command": "show ip route {ip} longer-prefixes",
+        "batfish_question": "bf.q.lpmRoutes()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish lpmRoutes results"
+      }
+    },
+    {
+      "_key": "ver_bf_multipathConsistency",
+      "id": "ver_bf_multipathConsistency",
+      "label": "Verify multipathConsistency",
+      "type": "Verification",
+      "description": "동일 목적지에 대한 다중 경로(ECMP) 전달 일관성 및 루프 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.multipathConsistency()",
+        "sample_call": "bf.q.multipathConsistency()",
+        "cli_command": "show ip cef exact-route {src} {dst}"
+      }
+    },
+    {
+      "_key": "cmd_pair_multipathConsistency",
+      "id": "cmd_pair_multipathConsistency",
+      "label": "show ip cef exact-route {src} {dst}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for multipathConsistency",
+      "details": {
+        "command": "show ip cef exact-route {src} {dst}",
+        "batfish_question": "bf.q.multipathConsistency()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish multipathConsistency results"
+      }
+    },
+    {
+      "_key": "ver_bf_subnetMultipathConsistency",
+      "id": "ver_bf_subnetMultipathConsistency",
+      "label": "Verify subnetMultipathConsistency",
+      "type": "Verification",
+      "description": "서브넷 내 호스트별 ECMP 포워딩 경로 일관성 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.subnetMultipathConsistency()",
+        "sample_call": "bf.q.subnetMultipathConsistency()",
+        "cli_command": "show ip cef {subnet}"
+      }
+    },
+    {
+      "_key": "cmd_pair_subnetMultipathConsistency",
+      "id": "cmd_pair_subnetMultipathConsistency",
+      "label": "show ip cef {subnet}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for subnetMultipathConsistency",
+      "details": {
+        "command": "show ip cef {subnet}",
+        "batfish_question": "bf.q.subnetMultipathConsistency()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish subnetMultipathConsistency results"
+      }
+    },
+    {
+      "_key": "ver_bf_loopbackMultipathConsistency",
+      "id": "ver_bf_loopbackMultipathConsistency",
+      "label": "Verify loopbackMultipathConsistency",
+      "type": "Verification",
+      "description": "루프백 목적지에 대한 다중 경로 포워딩 일관성 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.loopbackMultipathConsistency()",
+        "sample_call": "bf.q.loopbackMultipathConsistency()",
+        "cli_command": "show ip cef {loopback_ip}"
+      }
+    },
+    {
+      "_key": "cmd_pair_loopbackMultipathConsistency",
+      "id": "cmd_pair_loopbackMultipathConsistency",
+      "label": "show ip cef {loopback_ip}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for loopbackMultipathConsistency",
+      "details": {
+        "command": "show ip cef {loopback_ip}",
+        "batfish_question": "bf.q.loopbackMultipathConsistency()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish loopbackMultipathConsistency results"
+      }
+    },
+    {
+      "_key": "ver_bf_detectLoops",
+      "id": "ver_bf_detectLoops",
+      "label": "Verify detectLoops",
+      "type": "Verification",
+      "description": "네트워크 포워딩 경로 상의 전달 루프(Forwarding Loop) 수학적 탐지",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.detectLoops()",
+        "sample_call": "bf.q.detectLoops()",
+        "cli_command": "traceroute {ip}"
+      }
+    },
+    {
+      "_key": "cmd_pair_detectLoops",
+      "id": "cmd_pair_detectLoops",
+      "label": "traceroute {ip}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for detectLoops",
+      "details": {
+        "command": "traceroute {ip}",
+        "batfish_question": "bf.q.detectLoops()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish detectLoops results"
+      }
+    },
+    {
+      "_key": "ver_bf_traceroute",
+      "id": "ver_bf_traceroute",
+      "label": "Verify traceroute",
+      "type": "Verification",
+      "description": "특정 패킷 헤더(IP, 포트, 프로토콜)의 단방향 홉별 전달 및 드롭 위치 추적",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 4 (Transport & Forwarding)",
+        "batfish_question": "bf.q.traceroute()",
+        "sample_call": "bf.q.traceroute(startLocation='{src}', headers=HeaderConstraints(dstIps='{dst}', ipProtocols=['tcp'], dstPorts=['179']))",
+        "cli_command": "traceroute {dst} source {src}"
+      }
+    },
+    {
+      "_key": "cmd_pair_traceroute",
+      "id": "cmd_pair_traceroute",
+      "label": "traceroute {dst} source {src}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for traceroute",
+      "details": {
+        "command": "traceroute {dst} source {src}",
+        "batfish_question": "bf.q.traceroute()",
+        "layer": "Layer 4 (Transport & Forwarding)",
+        "expected_output_hint": "Expected output matching Batfish traceroute results"
+      }
+    },
+    {
+      "_key": "ver_bf_bidirectionalTraceroute",
+      "id": "ver_bf_bidirectionalTraceroute",
+      "label": "Verify bidirectionalTraceroute",
+      "type": "Verification",
+      "description": "왕복 패킷(SYN / SYN-ACK) 경로의 양방향 홉별 전달 및 방화벽/ACL 차단 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 4 (Transport & Forwarding)",
+        "batfish_question": "bf.q.bidirectionalTraceroute()",
+        "sample_call": "bf.q.bidirectionalTraceroute(startLocation='{src}', headers=HeaderConstraints(dstIps='{dst}', ipProtocols=['tcp'], dstPorts=['179']))",
+        "cli_command": "traceroute {dst} source {src}"
+      }
+    },
+    {
+      "_key": "ver_bf_reachability",
+      "id": "ver_bf_reachability",
+      "label": "Verify reachability",
+      "type": "Verification",
+      "description": "모든 유효 패킷 공간에 대한 종단 간(End-to-End) 도달 가능성 정형 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.reachability()",
+        "sample_call": "bf.q.reachability(pathConstraints=PathConstraints(startLocation='{src}'), headers=HeaderConstraints(dstIps='{dst}'))",
+        "cli_command": "ping {dst} source {src}"
+      }
+    },
+    {
+      "_key": "cmd_pair_reachability",
+      "id": "cmd_pair_reachability",
+      "label": "ping {dst} source {src}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for reachability",
+      "details": {
+        "command": "ping {dst} source {src}",
+        "batfish_question": "bf.q.reachability()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish reachability results"
+      }
+    },
+    {
+      "_key": "ver_bf_bidirectionalReachability",
+      "id": "ver_bf_bidirectionalReachability",
+      "label": "Verify bidirectionalReachability",
+      "type": "Verification",
+      "description": "양방향 세션 수립을 위한 왕복 트래픽 도달 가능성 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 4 (Transport & Forwarding)",
+        "batfish_question": "bf.q.bidirectionalReachability()",
+        "sample_call": "bf.q.bidirectionalReachability(pathConstraints=PathConstraints(startLocation='{src}'), headers=HeaderConstraints(dstIps='{dst}'))",
+        "cli_command": "ping {dst} source {src} repeat 5"
+      }
+    },
+    {
+      "_key": "cmd_pair_bidirectionalReachability",
+      "id": "cmd_pair_bidirectionalReachability",
+      "label": "ping {dst} source {src} repeat 5",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for bidirectionalReachability",
+      "details": {
+        "command": "ping {dst} source {src} repeat 5",
+        "batfish_question": "bf.q.bidirectionalReachability()",
+        "layer": "Layer 4 (Transport & Forwarding)",
+        "expected_output_hint": "Expected output matching Batfish bidirectionalReachability results"
+      }
+    },
+    {
+      "_key": "ver_bf_differentialReachability",
+      "id": "ver_bf_differentialReachability",
+      "label": "Verify differentialReachability",
+      "type": "Verification",
+      "description": "설정 변경 전/후의 트래픽 도달 가능성 차이(회귀 분석) 정형 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.differentialReachability()",
+        "sample_call": "bf.q.differentialReachability()",
+        "cli_command": "show archive config differences"
+      }
+    },
+    {
+      "_key": "cmd_pair_differentialReachability",
+      "id": "cmd_pair_differentialReachability",
+      "label": "show archive config differences",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for differentialReachability",
+      "details": {
+        "command": "show archive config differences",
+        "batfish_question": "bf.q.differentialReachability()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish differentialReachability results"
+      }
+    },
+    {
+      "_key": "ver_bf_transferBDDValidation",
+      "id": "ver_bf_transferBDDValidation",
+      "label": "Verify transferBDDValidation",
+      "type": "Verification",
+      "description": "심볼릭 BDD 엔진과 실제 시뮬레이션 간의 수학적 전달 동등성 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.transferBDDValidation()",
+        "sample_call": "bf.q.transferBDDValidation()",
+        "cli_command": "show ip cef"
+      }
+    },
+    {
+      "_key": "cmd_pair_transferBDDValidation",
+      "id": "cmd_pair_transferBDDValidation",
+      "label": "show ip cef",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for transferBDDValidation",
+      "details": {
+        "command": "show ip cef",
+        "batfish_question": "bf.q.transferBDDValidation()",
+        "layer": "Layer 3 (Underlay Routing)",
+        "expected_output_hint": "Expected output matching Batfish transferBDDValidation results"
+      }
+    },
+    {
+      "_key": "ver_bf_filterLineReachability",
+      "id": "ver_bf_filterLineReachability",
+      "label": "Verify filterLineReachability",
+      "type": "Verification",
+      "description": "ACL 내에서 앞선 규칙에 가려 절대 실행되지 않는 무효(Shadowed) 라인 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Security Filter)",
+        "batfish_question": "bf.q.filterLineReachability()",
+        "sample_call": "bf.q.filterLineReachability(nodes='{node}')",
+        "cli_command": "show ip access-lists"
+      }
+    },
+    {
+      "_key": "cmd_pair_filterLineReachability",
+      "id": "cmd_pair_filterLineReachability",
+      "label": "show ip access-lists",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for filterLineReachability",
+      "details": {
+        "command": "show ip access-lists",
+        "batfish_question": "bf.q.filterLineReachability()",
+        "layer": "Layer 3 (Security Filter)",
+        "expected_output_hint": "Expected output matching Batfish filterLineReachability results"
+      }
+    },
+    {
+      "_key": "ver_bf_testFilters",
+      "id": "ver_bf_testFilters",
+      "label": "Verify testFilters",
+      "type": "Verification",
+      "description": "가상 패킷 헤더를 ACL에 통과시켜 몇 번 라인에서 PERMIT/DENY 되는지 행동 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Security Filter)",
+        "batfish_question": "bf.q.testFilters()",
+        "sample_call": "bf.q.testFilters(nodes='{node}', filters='\"{acl_name}\"', headers=HeaderConstraints(dstIps='{dst}', ipProtocols=['tcp'], dstPorts=['179']))",
+        "cli_command": "show ip access-lists {acl_name}"
+      }
+    },
+    {
+      "_key": "cmd_pair_testFilters",
+      "id": "cmd_pair_testFilters",
+      "label": "show ip access-lists {acl_name}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for testFilters",
+      "details": {
+        "command": "show ip access-lists {acl_name}",
+        "batfish_question": "bf.q.testFilters()",
+        "layer": "Layer 3 (Security Filter)",
+        "expected_output_hint": "Expected output matching Batfish testFilters results"
+      }
+    },
+    {
+      "_key": "ver_bf_searchFilters",
+      "id": "ver_bf_searchFilters",
+      "label": "Verify searchFilters",
+      "type": "Verification",
+      "description": "특정 조건(예: 포트 179 차단)을 만족하는 패킷을 허용/차단하는 ACL 및 라인 역추적",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Security Filter)",
+        "batfish_question": "bf.q.searchFilters()",
+        "sample_call": "bf.q.searchFilters(nodes='{node}', action='deny')",
+        "cli_command": "show ip access-lists"
+      }
+    },
+    {
+      "_key": "ver_bf_findMatchingFilterLines",
+      "id": "ver_bf_findMatchingFilterLines",
+      "label": "Verify findMatchingFilterLines",
+      "type": "Verification",
+      "description": "특정 패킷 헤더와 일치하는 구체적인 필터 룰 라인 번호 검색",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Security Filter)",
+        "batfish_question": "bf.q.findMatchingFilterLines()",
+        "sample_call": "bf.q.findMatchingFilterLines(nodes='{node}', filters='\"{acl_name}\"')",
+        "cli_command": "show ip access-lists {acl_name}"
+      }
+    },
+    {
+      "_key": "cmd_pair_findMatchingFilterLines",
+      "id": "cmd_pair_findMatchingFilterLines",
+      "label": "show ip access-lists {acl_name}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for findMatchingFilterLines",
+      "details": {
+        "command": "show ip access-lists {acl_name}",
+        "batfish_question": "bf.q.findMatchingFilterLines()",
+        "layer": "Layer 3 (Security Filter)",
+        "expected_output_hint": "Expected output matching Batfish findMatchingFilterLines results"
+      }
+    },
+    {
+      "_key": "ver_bf_filterTable",
+      "id": "ver_bf_filterTable",
+      "label": "Verify filterTable",
+      "type": "Verification",
+      "description": "정형 질문 결과 테이블을 조건부로 필터링하여 출력",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Security Filter)",
+        "batfish_question": "bf.q.filterTable()",
+        "sample_call": "bf.q.filterTable(innerQuestion=bf.q.routes().dict(), filter=\"Protocol == 'ospf'\")",
+        "cli_command": "show access-lists"
+      }
+    },
+    {
+      "_key": "cmd_pair_filterTable",
+      "id": "cmd_pair_filterTable",
+      "label": "show access-lists",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for filterTable",
+      "details": {
+        "command": "show access-lists",
+        "batfish_question": "bf.q.filterTable()",
+        "layer": "Layer 3 (Security Filter)",
+        "expected_output_hint": "Expected output matching Batfish filterTable results"
+      }
+    },
+    {
+      "_key": "ver_bf_compareFilters",
+      "id": "ver_bf_compareFilters",
+      "label": "Verify compareFilters",
+      "type": "Verification",
+      "description": "설정 변경 전/후 ACL 룰의 허용/차단 패킷 범위 변화 차분 분석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Security Filter)",
+        "batfish_question": "bf.q.compareFilters()",
+        "sample_call": "bf.q.compareFilters()",
+        "cli_command": "show archive config differences"
+      }
+    },
+    {
+      "_key": "ver_bf_searchRoutePolicies",
+      "id": "ver_bf_searchRoutePolicies",
+      "label": "Verify searchRoutePolicies",
+      "type": "Verification",
+      "description": "Route-Map 및 라우트 정책에서 특정 접두사를 허용/거부/변조하는 조건 역추적",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Policy Routing)",
+        "batfish_question": "bf.q.searchRoutePolicies()",
+        "sample_call": "bf.q.searchRoutePolicies(nodes='{node}')",
+        "cli_command": "show route-map"
+      }
+    },
+    {
+      "_key": "ver_bf_testRoutePolicies",
+      "id": "ver_bf_testRoutePolicies",
+      "label": "Verify testRoutePolicies",
+      "type": "Verification",
+      "description": "가상 라우트에 대해 Route-Map 정책을 적용했을 때의 변조 결과 시뮬레이션",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Policy Routing)",
+        "batfish_question": "bf.q.testRoutePolicies()",
+        "sample_call": "bf.q.testRoutePolicies(nodes='{node}', policies='{policy}', direction='out', inputRoutes=[...])",
+        "cli_command": "show route-map"
+      }
+    },
+    {
+      "_key": "ver_bf_compareRoutePolicies",
+      "id": "ver_bf_compareRoutePolicies",
+      "label": "Verify compareRoutePolicies",
+      "type": "Verification",
+      "description": "라우팅 정책(Route-Map) 변경 전/후의 허용/거부/변조 결과 차분 분석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Policy Routing)",
+        "batfish_question": "bf.q.compareRoutePolicies()",
+        "sample_call": "bf.q.compareRoutePolicies(nodes='{node}', policy='{policy}')",
+        "cli_command": "show archive config differences"
+      }
+    },
+    {
+      "_key": "ver_bf_edges",
+      "id": "ver_bf_edges",
+      "label": "Verify edges",
+      "type": "Verification",
+      "description": "네트워크 내 모든 프로토콜 인접 엣지 통합 조회",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 2 (Data Link)",
+        "batfish_question": "bf.q.edges()",
+        "sample_call": "bf.q.edges()",
+        "cli_command": "show cdp neighbors detail"
+      }
+    },
+    {
+      "_key": "cmd_pair_edges",
+      "id": "cmd_pair_edges",
+      "label": "show cdp neighbors detail",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for edges",
+      "details": {
+        "command": "show cdp neighbors detail",
+        "batfish_question": "bf.q.edges()",
+        "layer": "Layer 2 (Data Link)",
+        "expected_output_hint": "Expected output matching Batfish edges results"
+      }
+    },
+    {
+      "_key": "ver_bf_layer1Edges",
+      "id": "ver_bf_layer1Edges",
+      "label": "Verify layer1Edges",
+      "type": "Verification",
+      "description": "물리 계층 1 포트 대 포트 직접 케이블 연결 관계 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 1 (Physical)",
+        "batfish_question": "bf.q.layer1Edges()",
+        "sample_call": "bf.q.layer1Edges()",
+        "cli_command": "show cdp neighbors"
+      }
+    },
+    {
+      "_key": "cmd_pair_layer1Edges",
+      "id": "cmd_pair_layer1Edges",
+      "label": "show cdp neighbors",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for layer1Edges",
+      "details": {
+        "command": "show cdp neighbors",
+        "batfish_question": "bf.q.layer1Edges()",
+        "layer": "Layer 1 (Physical)",
+        "expected_output_hint": "Expected output matching Batfish layer1Edges results"
+      }
+    },
+    {
+      "_key": "ver_bf_userProvidedLayer1Edges",
+      "id": "ver_bf_userProvidedLayer1Edges",
+      "label": "Verify userProvidedLayer1Edges",
+      "type": "Verification",
+      "description": "사용자가 수동 제공한 물리 케이블링 토폴로지 매핑 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 1 (Physical)",
+        "batfish_question": "bf.q.userProvidedLayer1Edges()",
+        "sample_call": "bf.q.userProvidedLayer1Edges()",
+        "cli_command": "show cdp neighbors detail"
+      }
+    },
+    {
+      "_key": "ver_bf_layer3Edges",
+      "id": "ver_bf_layer3Edges",
+      "label": "Verify layer3Edges",
+      "type": "Verification",
+      "description": "인터페이스 IP 서브넷 기반 Layer 3 논리적 링크 토폴로지 동적 계산",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.layer3Edges()",
+        "sample_call": "bf.q.layer3Edges()",
+        "cli_command": "show ip interface brief"
+      }
+    },
+    {
+      "_key": "ver_bf_interfaceProperties",
+      "id": "ver_bf_interfaceProperties",
+      "label": "Verify interfaceProperties",
+      "type": "Verification",
+      "description": "인터페이스 상태(Up/Down), Speed, Duplex, VRF, Bandwidth 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 2 (Data Link)",
+        "batfish_question": "bf.q.interfaceProperties()",
+        "sample_call": "bf.q.interfaceProperties(nodes='{node}')",
+        "cli_command": "show interfaces"
+      }
+    },
+    {
+      "_key": "cmd_pair_interfaceProperties",
+      "id": "cmd_pair_interfaceProperties",
+      "label": "show interfaces",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for interfaceProperties",
+      "details": {
+        "command": "show interfaces",
+        "batfish_question": "bf.q.interfaceProperties()",
+        "layer": "Layer 2 (Data Link)",
+        "expected_output_hint": "Expected output matching Batfish interfaceProperties results"
+      }
+    },
+    {
+      "_key": "ver_bf_interfaceMtu",
+      "id": "ver_bf_interfaceMtu",
+      "label": "Verify interfaceMtu",
+      "type": "Verification",
+      "description": "인터페이스 MTU 크기 및 양단 장비 간 MTU 불일치 여부 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 2 (Data Link)",
+        "batfish_question": "bf.q.interfaceMtu()",
+        "sample_call": "bf.q.interfaceMtu(nodes='{node}')",
+        "cli_command": "show interfaces | include MTU"
+      }
+    },
+    {
+      "_key": "cmd_pair_interfaceMtu",
+      "id": "cmd_pair_interfaceMtu",
+      "label": "show interfaces | include MTU",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for interfaceMtu",
+      "details": {
+        "command": "show interfaces | include MTU",
+        "batfish_question": "bf.q.interfaceMtu()",
+        "layer": "Layer 2 (Data Link)",
+        "expected_output_hint": "Expected output matching Batfish interfaceMtu results"
+      }
+    },
+    {
+      "_key": "ver_bf_ipOwners",
+      "id": "ver_bf_ipOwners",
+      "label": "Verify ipOwners",
+      "type": "Verification",
+      "description": "모든 IP 주소의 소유 장비 및 인터페이스, 중복 IP 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Underlay Routing)",
+        "batfish_question": "bf.q.ipOwners()",
+        "sample_call": "bf.q.ipOwners()",
+        "cli_command": "show ip interface brief"
+      }
+    },
+    {
+      "_key": "ver_bf_switchedVlanProperties",
+      "id": "ver_bf_switchedVlanProperties",
+      "label": "Verify switchedVlanProperties",
+      "type": "Verification",
+      "description": "스위치포트 VLAN 구성, Access/Trunk 모드 및 허용 VLAN 목록 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 2 (Data Link)",
+        "batfish_question": "bf.q.switchedVlanProperties()",
+        "sample_call": "bf.q.switchedVlanProperties(nodes='{node}')",
+        "cli_command": "show vlan brief"
+      }
+    },
+    {
+      "_key": "cmd_pair_switchedVlanProperties",
+      "id": "cmd_pair_switchedVlanProperties",
+      "label": "show vlan brief",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for switchedVlanProperties",
+      "details": {
+        "command": "show vlan brief",
+        "batfish_question": "bf.q.switchedVlanProperties()",
+        "layer": "Layer 2 (Data Link)",
+        "expected_output_hint": "Expected output matching Batfish switchedVlanProperties results"
+      }
+    },
+    {
+      "_key": "ver_bf_hsrpProperties",
+      "id": "ver_bf_hsrpProperties",
+      "label": "Verify hsrpProperties",
+      "type": "Verification",
+      "description": "HSRP 그룹 번호, 가상 IP, Priority, Preempt 상태 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (First Hop Redundancy)",
+        "batfish_question": "bf.q.hsrpProperties()",
+        "sample_call": "bf.q.hsrpProperties(nodes='{node}')",
+        "cli_command": "show standby brief"
+      }
+    },
+    {
+      "_key": "cmd_pair_hsrpProperties",
+      "id": "cmd_pair_hsrpProperties",
+      "label": "show standby brief",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for hsrpProperties",
+      "details": {
+        "command": "show standby brief",
+        "batfish_question": "bf.q.hsrpProperties()",
+        "layer": "Layer 3 (First Hop Redundancy)",
+        "expected_output_hint": "Expected output matching Batfish hsrpProperties results"
+      }
+    },
+    {
+      "_key": "ver_bf_vrrpProperties",
+      "id": "ver_bf_vrrpProperties",
+      "label": "Verify vrrpProperties",
+      "type": "Verification",
+      "description": "VRRP 그룹 번호, 가상 IP, Priority 및 Master/Backup 상태 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (First Hop Redundancy)",
+        "batfish_question": "bf.q.vrrpProperties()",
+        "sample_call": "bf.q.vrrpProperties(nodes='{node}')",
+        "cli_command": "show vrrp brief"
+      }
+    },
+    {
+      "_key": "cmd_pair_vrrpProperties",
+      "id": "cmd_pair_vrrpProperties",
+      "label": "show vrrp brief",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for vrrpProperties",
+      "details": {
+        "command": "show vrrp brief",
+        "batfish_question": "bf.q.vrrpProperties()",
+        "layer": "Layer 3 (First Hop Redundancy)",
+        "expected_output_hint": "Expected output matching Batfish vrrpProperties results"
+      }
+    },
+    {
+      "_key": "ver_bf_mlagProperties",
+      "id": "ver_bf_mlagProperties",
+      "label": "Verify mlagProperties",
+      "type": "Verification",
+      "description": "멀티섀시 링크 애그리게이션(MLAG / EtherChannel) 상태 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 2 (Data Link)",
+        "batfish_question": "bf.q.mlagProperties()",
+        "sample_call": "bf.q.mlagProperties(nodes='{node}')",
+        "cli_command": "show etherchannel summary"
+      }
+    },
+    {
+      "_key": "cmd_pair_mlagProperties",
+      "id": "cmd_pair_mlagProperties",
+      "label": "show etherchannel summary",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for mlagProperties",
+      "details": {
+        "command": "show etherchannel summary",
+        "batfish_question": "bf.q.mlagProperties()",
+        "layer": "Layer 2 (Data Link)",
+        "expected_output_hint": "Expected output matching Batfish mlagProperties results"
+      }
+    },
+    {
+      "_key": "ver_bf_vxlanEdges",
+      "id": "ver_bf_vxlanEdges",
+      "label": "Verify vxlanEdges",
+      "type": "Verification",
+      "description": "VXLAN 터널 엔드포인트(VTEP) 간의 NVE 피어링 엣지 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Overlay)",
+        "batfish_question": "bf.q.vxlanEdges()",
+        "sample_call": "bf.q.vxlanEdges()",
+        "cli_command": "show nve peers"
+      }
+    },
+    {
+      "_key": "cmd_pair_vxlanEdges",
+      "id": "cmd_pair_vxlanEdges",
+      "label": "show nve peers",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for vxlanEdges",
+      "details": {
+        "command": "show nve peers",
+        "batfish_question": "bf.q.vxlanEdges()",
+        "layer": "Layer 3 (Overlay)",
+        "expected_output_hint": "Expected output matching Batfish vxlanEdges results"
+      }
+    },
+    {
+      "_key": "ver_bf_vxlanVniProperties",
+      "id": "ver_bf_vxlanVniProperties",
+      "label": "Verify vxlanVniProperties",
+      "type": "Verification",
+      "description": "VXLAN VNI 매핑, 멀티캐스트 그룹 및 바인딩 인터페이스 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Overlay)",
+        "batfish_question": "bf.q.vxlanVniProperties()",
+        "sample_call": "bf.q.vxlanVniProperties(nodes='{node}')",
+        "cli_command": "show nve vni"
+      }
+    },
+    {
+      "_key": "cmd_pair_vxlanVniProperties",
+      "id": "cmd_pair_vxlanVniProperties",
+      "label": "show nve vni",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for vxlanVniProperties",
+      "details": {
+        "command": "show nve vni",
+        "batfish_question": "bf.q.vxlanVniProperties()",
+        "layer": "Layer 3 (Overlay)",
+        "expected_output_hint": "Expected output matching Batfish vxlanVniProperties results"
+      }
+    },
+    {
+      "_key": "ver_bf_ipsecEdges",
+      "id": "ver_bf_ipsecEdges",
+      "label": "Verify ipsecEdges",
+      "type": "Verification",
+      "description": "IPsec VPN 터널 엣지 및 피어 연결 관계 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Security/VPN)",
+        "batfish_question": "bf.q.ipsecEdges()",
+        "sample_call": "bf.q.ipsecEdges()",
+        "cli_command": "show crypto ipsec sa"
+      }
+    },
+    {
+      "_key": "cmd_pair_ipsecEdges",
+      "id": "cmd_pair_ipsecEdges",
+      "label": "show crypto ipsec sa",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for ipsecEdges",
+      "details": {
+        "command": "show crypto ipsec sa",
+        "batfish_question": "bf.q.ipsecEdges()",
+        "layer": "Layer 3 (Security/VPN)",
+        "expected_output_hint": "Expected output matching Batfish ipsecEdges results"
+      }
+    },
+    {
+      "_key": "ver_bf_ipsecSessionStatus",
+      "id": "ver_bf_ipsecSessionStatus",
+      "label": "Verify ipsecSessionStatus",
+      "type": "Verification",
+      "description": "IPsec IKE Phase 1 / Phase 2 보안 세션 수립 상태 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Layer 3 (Security/VPN)",
+        "batfish_question": "bf.q.ipsecSessionStatus()",
+        "sample_call": "bf.q.ipsecSessionStatus(nodes='{node}')",
+        "cli_command": "show crypto session"
+      }
+    },
+    {
+      "_key": "cmd_pair_ipsecSessionStatus",
+      "id": "cmd_pair_ipsecSessionStatus",
+      "label": "show crypto session",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for ipsecSessionStatus",
+      "details": {
+        "command": "show crypto session",
+        "batfish_question": "bf.q.ipsecSessionStatus()",
+        "layer": "Layer 3 (Security/VPN)",
+        "expected_output_hint": "Expected output matching Batfish ipsecSessionStatus results"
+      }
+    },
+    {
+      "_key": "ver_bf_nodeProperties",
+      "id": "ver_bf_nodeProperties",
+      "label": "Verify nodeProperties",
+      "type": "Verification",
+      "description": "장비 호스트명, 벤더 OS 모델, DNS, NTP, 전역 속성 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Device Management",
+        "batfish_question": "bf.q.nodeProperties()",
+        "sample_call": "bf.q.nodeProperties(nodes='{node}')",
+        "cli_command": "show version"
+      }
+    },
+    {
+      "_key": "cmd_pair_nodeProperties",
+      "id": "cmd_pair_nodeProperties",
+      "label": "show version",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for nodeProperties",
+      "details": {
+        "command": "show version",
+        "batfish_question": "bf.q.nodeProperties()",
+        "layer": "Device Management",
+        "expected_output_hint": "Expected output matching Batfish nodeProperties results"
+      }
+    },
+    {
+      "_key": "ver_bf_snmpCommunityClients",
+      "id": "ver_bf_snmpCommunityClients",
+      "label": "Verify snmpCommunityClients",
+      "type": "Verification",
+      "description": "SNMP 커뮤니티 문자열 및 NMS IP 접근 제어 목록 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Device Management",
+        "batfish_question": "bf.q.snmpCommunityClients()",
+        "sample_call": "bf.q.snmpCommunityClients(community='public')",
+        "cli_command": "show snmp community"
+      }
+    },
+    {
+      "_key": "cmd_pair_snmpCommunityClients",
+      "id": "cmd_pair_snmpCommunityClients",
+      "label": "show snmp community",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for snmpCommunityClients",
+      "details": {
+        "command": "show snmp community",
+        "batfish_question": "bf.q.snmpCommunityClients()",
+        "layer": "Device Management",
+        "expected_output_hint": "Expected output matching Batfish snmpCommunityClients results"
+      }
+    },
+    {
+      "_key": "ver_bf_aaaAuthenticationLogin",
+      "id": "ver_bf_aaaAuthenticationLogin",
+      "label": "Verify aaaAuthenticationLogin",
+      "type": "Verification",
+      "description": "콘솔/VTY 원격 접속 라인의 인증 방식 및 보안 취약점 점검",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Device Security",
+        "batfish_question": "bf.q.aaaAuthenticationLogin()",
+        "sample_call": "bf.q.aaaAuthenticationLogin(nodes='{node}')",
+        "cli_command": "show running-config | section line vty"
+      }
+    },
+    {
+      "_key": "cmd_pair_aaaAuthenticationLogin",
+      "id": "cmd_pair_aaaAuthenticationLogin",
+      "label": "show running-config | section line vty",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for aaaAuthenticationLogin",
+      "details": {
+        "command": "show running-config | section line vty",
+        "batfish_question": "bf.q.aaaAuthenticationLogin()",
+        "layer": "Device Security",
+        "expected_output_hint": "Expected output matching Batfish aaaAuthenticationLogin results"
+      }
+    },
+    {
+      "_key": "ver_bf_a10VirtualServerConfiguration",
+      "id": "ver_bf_a10VirtualServerConfiguration",
+      "label": "Verify a10VirtualServerConfiguration",
+      "type": "Verification",
+      "description": "A10 로드밸런서 Virtual Server 및 포트 바인딩 분석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "L4-L7 Application",
+        "batfish_question": "bf.q.a10VirtualServerConfiguration()",
+        "sample_call": "bf.q.a10VirtualServerConfiguration()",
+        "cli_command": "show ip virtual-reassembly"
+      }
+    },
+    {
+      "_key": "cmd_pair_a10VirtualServerConfiguration",
+      "id": "cmd_pair_a10VirtualServerConfiguration",
+      "label": "show ip virtual-reassembly",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for a10VirtualServerConfiguration",
+      "details": {
+        "command": "show ip virtual-reassembly",
+        "batfish_question": "bf.q.a10VirtualServerConfiguration()",
+        "layer": "L4-L7 Application",
+        "expected_output_hint": "Expected output matching Batfish a10VirtualServerConfiguration results"
+      }
+    },
+    {
+      "_key": "ver_bf_f5BigipVipConfiguration",
+      "id": "ver_bf_f5BigipVipConfiguration",
+      "label": "Verify f5BigipVipConfiguration",
+      "type": "Verification",
+      "description": "F5 BIG-IP LTM Virtual Server 및 풀 바인딩 분석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "L4-L7 Application",
+        "batfish_question": "bf.q.f5BigipVipConfiguration()",
+        "sample_call": "bf.q.f5BigipVipConfiguration()",
+        "cli_command": "show running-config | section vrf"
+      }
+    },
+    {
+      "_key": "cmd_pair_f5BigipVipConfiguration",
+      "id": "cmd_pair_f5BigipVipConfiguration",
+      "label": "show running-config | section vrf",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for f5BigipVipConfiguration",
+      "details": {
+        "command": "show running-config | section vrf",
+        "batfish_question": "bf.q.f5BigipVipConfiguration()",
+        "layer": "L4-L7 Application",
+        "expected_output_hint": "Expected output matching Batfish f5BigipVipConfiguration results"
+      }
+    },
+    {
+      "_key": "ver_bf_initIssues",
+      "id": "ver_bf_initIssues",
+      "label": "Verify initIssues",
+      "type": "Verification",
+      "description": "설정 로드 시 발생한 구문 파싱 경고 및 미인식 문법 분석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Config Hygiene",
+        "batfish_question": "bf.q.initIssues()",
+        "sample_call": "bf.q.initIssues()",
+        "cli_command": "show logging"
+      }
+    },
+    {
+      "_key": "ver_bf_parseWarning",
+      "id": "ver_bf_parseWarning",
+      "label": "Verify parseWarning",
+      "type": "Verification",
+      "description": "벤더별 설정 파싱 시 발생한 세부 경고 라인 분석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Config Hygiene",
+        "batfish_question": "bf.q.parseWarning()",
+        "sample_call": "bf.q.parseWarning()",
+        "cli_command": "show running-config"
+      }
+    },
+    {
+      "_key": "ver_bf_fileParseStatus",
+      "id": "ver_bf_fileParseStatus",
+      "label": "Verify fileParseStatus",
+      "type": "Verification",
+      "description": "설정 파일의 파싱 성공/부분 실패 상태 요약",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Config Hygiene",
+        "batfish_question": "bf.q.fileParseStatus()",
+        "sample_call": "bf.q.fileParseStatus()",
+        "cli_command": "show running-config"
+      }
+    },
+    {
+      "_key": "cmd_pair_fileParseStatus",
+      "id": "cmd_pair_fileParseStatus",
+      "label": "show running-config",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for fileParseStatus",
+      "details": {
+        "command": "show running-config",
+        "batfish_question": "bf.q.fileParseStatus()",
+        "layer": "Config Hygiene",
+        "expected_output_hint": "Expected output matching Batfish fileParseStatus results"
+      }
+    },
+    {
+      "_key": "ver_bf_definedStructures",
+      "id": "ver_bf_definedStructures",
+      "label": "Verify definedStructures",
+      "type": "Verification",
+      "description": "설정 내 정의된 모든 명명된 구조체(ACL, VRF, Route-Map) 인벤토리",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Config Hygiene",
+        "batfish_question": "bf.q.definedStructures()",
+        "sample_call": "bf.q.definedStructures(nodes='{node}')",
+        "cli_command": "show running-config | section {type}"
+      }
+    },
+    {
+      "_key": "cmd_pair_definedStructures",
+      "id": "cmd_pair_definedStructures",
+      "label": "show running-config | section {type}",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for definedStructures",
+      "details": {
+        "command": "show running-config | section {type}",
+        "batfish_question": "bf.q.definedStructures()",
+        "layer": "Config Hygiene",
+        "expected_output_hint": "Expected output matching Batfish definedStructures results"
+      }
+    },
+    {
+      "_key": "ver_bf_referencedStructures",
+      "id": "ver_bf_referencedStructures",
+      "label": "Verify referencedStructures",
+      "type": "Verification",
+      "description": "다른 설정에서 참조하고 있는 구조체 목록 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Config Hygiene",
+        "batfish_question": "bf.q.referencedStructures()",
+        "sample_call": "bf.q.referencedStructures(nodes='{node}')",
+        "cli_command": "show running-config"
+      }
+    },
+    {
+      "_key": "cmd_pair_referencedStructures",
+      "id": "cmd_pair_referencedStructures",
+      "label": "show running-config",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for referencedStructures",
+      "details": {
+        "command": "show running-config",
+        "batfish_question": "bf.q.referencedStructures()",
+        "layer": "Config Hygiene",
+        "expected_output_hint": "Expected output matching Batfish referencedStructures results"
+      }
+    },
+    {
+      "_key": "ver_bf_undefinedReferences",
+      "id": "ver_bf_undefinedReferences",
+      "label": "Verify undefinedReferences",
+      "type": "Verification",
+      "description": "참조되고 있으나 실제 정의되지 않은 객체(존재하지 않는 ACL 호출) 탐지",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Config Hygiene",
+        "batfish_question": "bf.q.undefinedReferences()",
+        "sample_call": "bf.q.undefinedReferences(nodes='{node}')",
+        "cli_command": "show running-config"
+      }
+    },
+    {
+      "_key": "ver_bf_unusedStructures",
+      "id": "ver_bf_unusedStructures",
+      "label": "Verify unusedStructures",
+      "type": "Verification",
+      "description": "정의되어 있으나 어떤 인터페이스에서도 사용되지 않는 미사용 정책 탐지",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Config Hygiene",
+        "batfish_question": "bf.q.unusedStructures()",
+        "sample_call": "bf.q.unusedStructures(nodes='{node}')",
+        "cli_command": "show running-config"
+      }
+    },
+    {
+      "_key": "ver_bf_viConversionStatus",
+      "id": "ver_bf_viConversionStatus",
+      "label": "Verify viConversionStatus",
+      "type": "Verification",
+      "description": "장비 설정이 Batfish 표준 벤더 중립 모델로 정상 변환되었는지 검증",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Model Conversion",
+        "batfish_question": "bf.q.viConversionStatus()",
+        "sample_call": "bf.q.viConversionStatus(nodes='{node}')",
+        "cli_command": "show version"
+      }
+    },
+    {
+      "_key": "ver_bf_viConversionWarning",
+      "id": "ver_bf_viConversionWarning",
+      "label": "Verify viConversionWarning",
+      "type": "Verification",
+      "description": "벤더 중립 모델 변환 과정에서 누락된 속성 경고 분석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Model Conversion",
+        "batfish_question": "bf.q.viConversionWarning()",
+        "sample_call": "bf.q.viConversionWarning(nodes='{node}')",
+        "cli_command": "show running-config"
+      }
+    },
+    {
+      "_key": "ver_bf_viModel",
+      "id": "ver_bf_viModel",
+      "label": "Verify viModel",
+      "type": "Verification",
+      "description": "벤더 중립 표준 모델로 변환된 노드 및 인터페이스 속성 덤프",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Model Conversion",
+        "batfish_question": "bf.q.viModel()",
+        "sample_call": "bf.q.viModel(nodes='{node}')",
+        "cli_command": "show running-config"
+      }
+    },
+    {
+      "_key": "cmd_pair_viModel",
+      "id": "cmd_pair_viModel",
+      "label": "show running-config",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for viModel",
+      "details": {
+        "command": "show running-config",
+        "batfish_question": "bf.q.viModel()",
+        "layer": "Model Conversion",
+        "expected_output_hint": "Expected output matching Batfish viModel results"
+      }
+    },
+    {
+      "_key": "ver_bf_resolveNodeSpecifier",
+      "id": "ver_bf_resolveNodeSpecifier",
+      "label": "Verify resolveNodeSpecifier",
+      "type": "Verification",
+      "description": "노드 명세자(정규식/그룹)에 일치하는 대상 장비 호스트명 목록 해석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Specifier Resolver",
+        "batfish_question": "bf.q.resolveNodeSpecifier()",
+        "sample_call": "bf.q.resolveNodeSpecifier(nodes='/r[1-5]/')",
+        "cli_command": "show hosts"
+      }
+    },
+    {
+      "_key": "cmd_pair_resolveNodeSpecifier",
+      "id": "cmd_pair_resolveNodeSpecifier",
+      "label": "show hosts",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for resolveNodeSpecifier",
+      "details": {
+        "command": "show hosts",
+        "batfish_question": "bf.q.resolveNodeSpecifier()",
+        "layer": "Specifier Resolver",
+        "expected_output_hint": "Expected output matching Batfish resolveNodeSpecifier results"
+      }
+    },
+    {
+      "_key": "ver_bf_resolveInterfaceSpecifier",
+      "id": "ver_bf_resolveInterfaceSpecifier",
+      "label": "Verify resolveInterfaceSpecifier",
+      "type": "Verification",
+      "description": "인터페이스 명세자에 일치하는 네트워크 포트 목록 해석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Specifier Resolver",
+        "batfish_question": "bf.q.resolveInterfaceSpecifier()",
+        "sample_call": "bf.q.resolveInterfaceSpecifier(interfaces='Ethernet0/1')",
+        "cli_command": "show ip interface brief"
+      }
+    },
+    {
+      "_key": "ver_bf_resolveFilterSpecifier",
+      "id": "ver_bf_resolveFilterSpecifier",
+      "label": "Verify resolveFilterSpecifier",
+      "type": "Verification",
+      "description": "필터 명세자에 매칭되는 ACL 및 패킷 필터 이름 해석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Specifier Resolver",
+        "batfish_question": "bf.q.resolveFilterSpecifier()",
+        "sample_call": "bf.q.resolveFilterSpecifier(filters='\"1\"')",
+        "cli_command": "show ip access-lists"
+      }
+    },
+    {
+      "_key": "ver_bf_resolveIpSpecifier",
+      "id": "ver_bf_resolveIpSpecifier",
+      "label": "Verify resolveIpSpecifier",
+      "type": "Verification",
+      "description": "IP 명세자(CIDR/와일드카드)에 매칭되는 실제 IP 주소 공간 해석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Specifier Resolver",
+        "batfish_question": "bf.q.resolveIpSpecifier()",
+        "sample_call": "bf.q.resolveIpSpecifier(ips='10.1.14.0/24')",
+        "cli_command": "show ip route"
+      }
+    },
+    {
+      "_key": "ver_bf_resolveLocationSpecifier",
+      "id": "ver_bf_resolveLocationSpecifier",
+      "label": "Verify resolveLocationSpecifier",
+      "type": "Verification",
+      "description": "위치 명세자에 매칭되는 토폴로지 위치 객체 해석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Specifier Resolver",
+        "batfish_question": "bf.q.resolveLocationSpecifier()",
+        "sample_call": "bf.q.resolveLocationSpecifier(locations='r1')",
+        "cli_command": "show ip interface brief"
+      }
+    },
+    {
+      "_key": "ver_bf_resolveIpsOfLocationSpecifier",
+      "id": "ver_bf_resolveIpsOfLocationSpecifier",
+      "label": "Verify resolveIpsOfLocationSpecifier",
+      "type": "Verification",
+      "description": "특정 토폴로지 위치에 할당된 실제 IP 주소 집합 해석",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Specifier Resolver",
+        "batfish_question": "bf.q.resolveIpsOfLocationSpecifier()",
+        "sample_call": "bf.q.resolveIpsOfLocationSpecifier(locations='r1')",
+        "cli_command": "show ip interface brief"
+      }
+    },
+    {
+      "_key": "ver_bf_namedStructures",
+      "id": "ver_bf_namedStructures",
+      "label": "Verify namedStructures",
+      "type": "Verification",
+      "description": "지정된 노드의 특정 명명된 구조체(ACL, Route-Map, VRF 등) 정의 상세 내용 조회",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Specifier Resolver",
+        "batfish_question": "bf.q.namedStructures()",
+        "sample_call": "bf.q.namedStructures(nodes='{node}')",
+        "cli_command": "show running-config"
+      }
+    },
+    {
+      "_key": "ver_bf_list",
+      "id": "ver_bf_list",
+      "label": "Verify list",
+      "type": "Verification",
+      "description": "현재 Batfish 서비스에서 사용 가능한 전체 정형 분석 질문 API 인벤토리 조회",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Batfish System",
+        "batfish_question": "bf.q.list()",
+        "sample_call": "bf.q.list()",
+        "cli_command": "help"
+      }
+    },
+    {
+      "_key": "cmd_pair_list",
+      "id": "cmd_pair_list",
+      "label": "help",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for list",
+      "details": {
+        "command": "help",
+        "batfish_question": "bf.q.list()",
+        "layer": "Batfish System",
+        "expected_output_hint": "Expected output matching Batfish list results"
+      }
+    },
+    {
+      "_key": "ver_bf_list_tags",
+      "id": "ver_bf_list_tags",
+      "label": "Verify list_tags",
+      "type": "Verification",
+      "description": "질문 API 분류 카테고리 태그 목록 조회",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Batfish System",
+        "batfish_question": "bf.q.list_tags()",
+        "sample_call": "bf.q.list_tags()",
+        "cli_command": "help"
+      }
+    },
+    {
+      "_key": "ver_bf_load",
+      "id": "ver_bf_load",
+      "label": "Verify load",
+      "type": "Verification",
+      "description": "외부 디렉토리에서 사용자 정의 정형 분석 질문 로드 및 확장",
+      "details": {
+        "method": "Dual-Engine (Batfish & Cisco CLI)",
+        "layer": "Batfish System",
+        "batfish_question": "bf.q.load()",
+        "sample_call": "bf.q.load(directory='...')",
+        "cli_command": "copy running-config ..."
+      }
+    },
+    {
+      "_key": "cmd_pair_load",
+      "id": "cmd_pair_load",
+      "label": "copy running-config ...",
+      "type": "Command",
+      "description": "Cisco IOS-XE Pair Command for load",
+      "details": {
+        "command": "copy running-config ...",
+        "batfish_question": "bf.q.load()",
+        "layer": "Batfish System",
+        "expected_output_hint": "Expected output matching Batfish load results"
+      }
+    },
+    {
+      "_key": "rc_bgp_admin_shutdown",
+      "id": "rc_bgp_admin_shutdown",
+      "label": "rc_bgp_admin_shutdown",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "ver_check_bgp_rib_table",
+      "id": "ver_check_bgp_rib_table",
+      "label": "ver_check_bgp_rib_table",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "cmd_fix_next_hop_self",
+      "id": "cmd_fix_next_hop_self",
+      "label": "cmd_fix_next_hop_self",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "cmd_fix_interface_ospf_enable",
+      "id": "cmd_fix_interface_ospf_enable",
+      "label": "cmd_fix_interface_ospf_enable",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "cmd_fix_ospf_advertise_nexthop",
+      "id": "cmd_fix_ospf_advertise_nexthop",
+      "label": "cmd_fix_ospf_advertise_nexthop",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "cmd_fix_isis_enable_interface",
+      "id": "cmd_fix_isis_enable_interface",
+      "label": "cmd_fix_isis_enable_interface",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "cmd_fix_ospf_mtu",
+      "id": "cmd_fix_ospf_mtu",
+      "label": "cmd_fix_ospf_mtu",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "rc_remote_as_mismatch",
+      "id": "rc_remote_as_mismatch",
+      "label": "rc_remote_as_mismatch",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "rc_bgp_router_id_mismatch",
+      "id": "rc_bgp_router_id_mismatch",
+      "label": "rc_bgp_router_id_mismatch",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "rc_ospf_duplicate_router_id",
+      "id": "rc_ospf_duplicate_router_id",
+      "label": "rc_ospf_duplicate_router_id",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "rc_interface_shutdown",
+      "id": "rc_interface_shutdown",
+      "label": "rc_interface_shutdown",
+      "type": "Symptom",
+      "description": "",
+      "details": {}
+    },
+    {
+      "_key": "cmd_show_running_config",
+      "id": "cmd_show_running_config",
+      "label": "show running-config",
+      "type": "Command",
+      "description": "전체 Cisco IOS-XE 활성 러닝 설정 확인",
+      "details": {
+        "command": "show running-config",
+        "layer": "Layer 7 (Application / Configuration)"
+      }
+    },
+    {
+      "_key": "symptom_isis_underlay_down",
+      "id": "symptom_isis_underlay_down",
+      "label": "IS-IS Underlay Route Down",
+      "type": "Symptom",
+      "description": "IS-IS 언더레이 라우트 미수신 또는 인접성/IP 도달성 결손 장애",
+      "details": {
+        "cli_command": ""
+      }
+    },
+    {
+      "_key": "rc_isis_metric_style_mismatch",
+      "id": "rc_isis_metric_style_mismatch",
+      "label": "IS-IS Metric-Style Mismatch",
+      "type": "RootCause",
+      "description": "IS-IS Narrow vs Wide Metric-Style TLV 불일치로 인한 IP 도달성(Reachability) 접두사 교환 실패",
+      "details": {
+        "cli_command": ""
+      }
+    },
+    {
+      "_key": "verif_isis_metric_style",
+      "id": "verif_isis_metric_style",
+      "label": "Verify IS-IS Metric Style & TLVs",
+      "type": "Verification",
+      "description": "IS-IS metric-style 및 TLV 128/135 교환 여부 검증",
+      "details": {
+        "cli_command": ""
+      }
+    },
+    {
+      "_key": "remed_isis_metric_style",
+      "id": "remed_isis_metric_style",
+      "label": "router isis / metric-style wide",
+      "type": "Remediation",
+      "description": "router isis 설정 하위에 metric-style wide 명령어를 일관되게 적용하여 TLV 135 기반 확장 IP 도달성 교환 활성화",
+      "details": {
+        "cli_command": ""
+      }
+    },
+    {
+      "_key": "cmd_show_run_isis",
+      "id": "cmd_show_run_isis",
+      "label": "show running-config | section router isis",
+      "type": "Command",
+      "description": "IS-IS 프로세스 및 metric-style 설정 확인",
+      "details": {
+        "cli_command": "show running-config | section router isis"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_bgp_auth_mismatch",
+      "source": "symptom_bgp_down",
+      "target": "rc_bgp_auth_mismatch",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_bgp_mtu_mismatch",
+      "source": "symptom_bgp_down",
+      "target": "rc_bgp_mtu_mismatch",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_interface_flapping",
+      "source": "symptom_bgp_down",
+      "target": "rc_interface_flapping",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/ver_check_bgp_summary",
+      "source": "symptom_bgp_down",
+      "target": "ver_check_bgp_summary",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_ospf",
+      "source": "symptom_bgp_down",
+      "target": "rc_bgp_nexthop_missing_ospf",
+      "relationship": "caused_by",
+      "description": "OSPF 언더레이 장애로 인한 BGP 다운"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_isis",
+      "source": "symptom_bgp_down",
+      "target": "rc_bgp_nexthop_missing_isis",
+      "relationship": "caused_by",
+      "description": "IS-IS 언더레이 장애로 인한 BGP 다운"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_static",
+      "source": "symptom_bgp_down",
+      "target": "rc_bgp_nexthop_missing_static",
+      "relationship": "caused_by",
+      "description": "Static 경로 유실로 인한 BGP 다운"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_interface_acl_blocked",
+      "source": "symptom_bgp_down",
+      "target": "rc_interface_acl_blocked",
+      "relationship": "caused_by",
+      "description": "인터페이스 ACL에 의한 BGP 세션 차단"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_pbr_policy_override",
+      "source": "symptom_bgp_down",
+      "target": "rc_pbr_policy_override",
+      "relationship": "caused_by",
+      "description": "PBR 정책에 의한 피어 IP 우회 또는 드롭"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/ver_check_interface_acl_pbr",
+      "source": "symptom_bgp_down",
+      "target": "ver_check_interface_acl_pbr",
+      "relationship": "diagnose_with",
+      "description": "OSI L3 인터페이스 ACL 및 PBR 점검"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_remote_as_mismatch",
+      "source": "symptom_bgp_down",
+      "target": "rc_remote_as_mismatch",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_remote_as_mismatch"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_bgp_router_id_mismatch",
+      "source": "symptom_bgp_down",
+      "target": "rc_bgp_router_id_mismatch",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_bgp_router_id_mismatch"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_bgp_missing_next_hop_self",
+      "source": "symptom_bgp_down",
+      "target": "rc_bgp_missing_next_hop_self",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_bgp_missing_next_hop_self"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_bgp_admin_shutdown",
+      "source": "symptom_bgp_down",
+      "target": "rc_bgp_admin_shutdown",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_bgp_admin_shutdown"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_bgp_next_hop_unreachable",
+      "source": "symptom_bgp_down",
+      "target": "rc_bgp_next_hop_unreachable",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_bgp_next_hop_unreachable"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_system_clock_skew",
+      "source": "symptom_bgp_down",
+      "target": "rc_system_clock_skew",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_system_clock_skew"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_aaa_login_failure",
+      "source": "symptom_bgp_down",
+      "target": "rc_aaa_login_failure",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_aaa_login_failure"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_config_syntax_error",
+      "source": "symptom_bgp_down",
+      "target": "rc_config_syntax_error",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_config_syntax_error"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_unused_policy_waste",
+      "source": "symptom_bgp_down",
+      "target": "rc_unused_policy_waste",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_unused_policy_waste"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_node_resolution_failed",
+      "source": "symptom_bgp_down",
+      "target": "rc_node_resolution_failed",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_node_resolution_failed"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_down",
+      "_to": "CausalNode/rc_api_unsupported",
+      "source": "symptom_bgp_down",
+      "target": "rc_api_unsupported",
+      "relationship": "leads_to",
+      "description": "symptom_bgp_down can be caused by rc_api_unsupported"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_auth_mismatch",
+      "_to": "CausalNode/ver_check_bgp_neighbors",
+      "source": "rc_bgp_auth_mismatch",
+      "target": "ver_check_bgp_neighbors",
+      "relationship": "verified_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_auth_mismatch",
+      "_to": "CausalNode/cmd_fix_bgp_auth",
+      "source": "rc_bgp_auth_mismatch",
+      "target": "cmd_fix_bgp_auth",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_auth_mismatch",
+      "_to": "CausalNode/ver_bf_bgpEdges",
+      "source": "rc_bgp_auth_mismatch",
+      "target": "ver_bf_bgpEdges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish bgpEdges"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_auth_mismatch",
+      "_to": "CausalNode/ver_bf_bgpSessionCompatibility",
+      "source": "rc_bgp_auth_mismatch",
+      "target": "ver_bf_bgpSessionCompatibility",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish bgpSessionCompatibility"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_mtu_mismatch",
+      "_to": "CausalNode/cmd_fix_interface_mtu",
+      "source": "rc_bgp_mtu_mismatch",
+      "target": "cmd_fix_interface_mtu",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_mtu_mismatch",
+      "_to": "CausalNode/ver_bf_interfaceMtu",
+      "source": "rc_bgp_mtu_mismatch",
+      "target": "ver_bf_interfaceMtu",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish interfaceMtu"
+    },
+    {
+      "_from": "CausalNode/rc_interface_flapping",
+      "_to": "CausalNode/ver_check_interface_status",
+      "source": "rc_interface_flapping",
+      "target": "ver_check_interface_status",
+      "relationship": "verified_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_interface_flapping",
+      "_to": "CausalNode/ver_bf_edges",
+      "source": "rc_interface_flapping",
+      "target": "ver_bf_edges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish edges"
+    },
+    {
+      "_from": "CausalNode/rc_interface_flapping",
+      "_to": "CausalNode/ver_bf_layer1Edges",
+      "source": "rc_interface_flapping",
+      "target": "ver_bf_layer1Edges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish layer1Edges"
+    },
+    {
+      "_from": "CausalNode/rc_interface_flapping",
+      "_to": "CausalNode/ver_bf_userProvidedLayer1Edges",
+      "source": "rc_interface_flapping",
+      "target": "ver_bf_userProvidedLayer1Edges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish userProvidedLayer1Edges"
+    },
+    {
+      "_from": "CausalNode/ver_check_bgp_summary",
+      "_to": "CausalNode/cmd_show_ip_bgp_summary",
+      "source": "ver_check_bgp_summary",
+      "target": "cmd_show_ip_bgp_summary",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_bgp_neighbors",
+      "_to": "CausalNode/cmd_show_ip_bgp_neighbors",
+      "source": "ver_check_bgp_neighbors",
+      "target": "cmd_show_ip_bgp_neighbors",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_interface_status",
+      "_to": "CausalNode/cmd_show_ip_int_brief",
+      "source": "ver_check_interface_status",
+      "target": "cmd_show_ip_int_brief",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/rc_bgp_no_route",
+      "source": "symptom_bgp_idle",
+      "target": "rc_bgp_no_route",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/rc_bgp_admin_shutdown",
+      "source": "symptom_bgp_idle",
+      "target": "rc_bgp_admin_shutdown",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/rc_bgp_acl_filter",
+      "source": "symptom_bgp_idle",
+      "target": "rc_bgp_acl_filter",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/rc_bgp_multihop_missing",
+      "source": "symptom_bgp_idle",
+      "target": "rc_bgp_multihop_missing",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/ver_check_peer_route",
+      "source": "symptom_bgp_idle",
+      "target": "ver_check_peer_route",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_ospf",
+      "source": "symptom_bgp_idle",
+      "target": "rc_bgp_nexthop_missing_ospf",
+      "relationship": "caused_by",
+      "description": "BGP 피어 IP로의 OSPF 언더레이 경로 부재"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_isis",
+      "source": "symptom_bgp_idle",
+      "target": "rc_bgp_nexthop_missing_isis",
+      "relationship": "caused_by",
+      "description": "BGP 피어 IP로의 IS-IS 언더레이 경로 부재"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_static",
+      "source": "symptom_bgp_idle",
+      "target": "rc_bgp_nexthop_missing_static",
+      "relationship": "caused_by",
+      "description": "BGP 피어 IP로의 정적 경로(Static Route) 부재"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/rc_interface_acl_blocked",
+      "source": "symptom_bgp_idle",
+      "target": "rc_interface_acl_blocked",
+      "relationship": "caused_by",
+      "description": "인터페이스 ACL에 의한 TCP 179 차단"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/rc_pbr_policy_override",
+      "source": "symptom_bgp_idle",
+      "target": "rc_pbr_policy_override",
+      "relationship": "caused_by",
+      "description": "PBR 정책에 의한 BGP 패킷 비정상 라우팅"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_idle",
+      "_to": "CausalNode/ver_check_interface_acl_pbr",
+      "source": "symptom_bgp_idle",
+      "target": "ver_check_interface_acl_pbr",
+      "relationship": "diagnose_with",
+      "description": "OSI L3 인터페이스 ACL 및 PBR 점검"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_no_route",
+      "_to": "CausalNode/ver_check_ospf_underlay",
+      "source": "rc_bgp_no_route",
+      "target": "ver_check_ospf_underlay",
+      "relationship": "diagnose_with",
+      "description": "OSPF 인접성 및 라우팅 테이블 점검"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_no_route",
+      "_to": "CausalNode/ver_check_isis_underlay",
+      "source": "rc_bgp_no_route",
+      "target": "ver_check_isis_underlay",
+      "relationship": "diagnose_with",
+      "description": "IS-IS 인접성 및 라우팅 테이블 점검"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_no_route",
+      "_to": "CausalNode/ver_check_static_underlay",
+      "source": "rc_bgp_no_route",
+      "target": "ver_check_static_underlay",
+      "relationship": "diagnose_with",
+      "description": "Static 라우팅 테이블 점검"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_acl_filter",
+      "_to": "CausalNode/cmd_fix_permit_tcp179",
+      "source": "rc_bgp_acl_filter",
+      "target": "cmd_fix_permit_tcp179",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_multihop_missing",
+      "_to": "CausalNode/ver_check_bgp_admin",
+      "source": "rc_bgp_multihop_missing",
+      "target": "ver_check_bgp_admin",
+      "relationship": "verified_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_multihop_missing",
+      "_to": "CausalNode/cmd_fix_ebgp_multihop",
+      "source": "rc_bgp_multihop_missing",
+      "target": "cmd_fix_ebgp_multihop",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_peer_route",
+      "_to": "CausalNode/cmd_ping_neighbor",
+      "source": "ver_check_peer_route",
+      "target": "cmd_ping_neighbor",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_peer_route",
+      "_to": "CausalNode/cmd_show_ip_route_peer",
+      "source": "ver_check_peer_route",
+      "target": "cmd_show_ip_route_peer",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_bgp_admin",
+      "_to": "CausalNode/cmd_show_run_bgp",
+      "source": "ver_check_bgp_admin",
+      "target": "cmd_show_run_bgp",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_active",
+      "_to": "CausalNode/rc_bgp_update_source_missing",
+      "source": "symptom_bgp_active",
+      "target": "rc_bgp_update_source_missing",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_active",
+      "_to": "CausalNode/rc_bgp_as_mismatch",
+      "source": "symptom_bgp_active",
+      "target": "rc_bgp_as_mismatch",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_active",
+      "_to": "CausalNode/rc_bgp_tcp_handshake_fail",
+      "source": "symptom_bgp_active",
+      "target": "rc_bgp_tcp_handshake_fail",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_active",
+      "_to": "CausalNode/ver_check_bgp_update_source",
+      "source": "symptom_bgp_active",
+      "target": "ver_check_bgp_update_source",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_active",
+      "_to": "CausalNode/symptom_bgp_down",
+      "source": "symptom_bgp_active",
+      "target": "symptom_bgp_down",
+      "relationship": "leads_to",
+      "description": "BGP Active 상태 장기화는 BGP 세션 다운 유발"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_update_source_missing",
+      "_to": "CausalNode/cmd_fix_update_source",
+      "source": "rc_bgp_update_source_missing",
+      "target": "cmd_fix_update_source",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_as_mismatch",
+      "_to": "CausalNode/cmd_fix_remote_as",
+      "source": "rc_bgp_as_mismatch",
+      "target": "cmd_fix_remote_as",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_bgp_update_source",
+      "_to": "CausalNode/cmd_show_tcp_brief",
+      "source": "ver_check_bgp_update_source",
+      "target": "cmd_show_tcp_brief",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_flapping",
+      "_to": "CausalNode/rc_bgp_hold_timer_expired",
+      "source": "symptom_bgp_flapping",
+      "target": "rc_bgp_hold_timer_expired",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_flapping",
+      "_to": "CausalNode/rc_bgp_large_update_mtu",
+      "source": "symptom_bgp_flapping",
+      "target": "rc_bgp_large_update_mtu",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_flapping",
+      "_to": "CausalNode/rc_bgp_duplicate_router_id",
+      "source": "symptom_bgp_flapping",
+      "target": "rc_bgp_duplicate_router_id",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_flapping",
+      "_to": "CausalNode/ver_check_bgp_flap_history",
+      "source": "symptom_bgp_flapping",
+      "target": "ver_check_bgp_flap_history",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_flapping",
+      "_to": "CausalNode/symptom_bgp_down",
+      "source": "symptom_bgp_flapping",
+      "target": "symptom_bgp_down",
+      "relationship": "leads_to",
+      "description": "지속적 세션 플래핑으로 인한 세션 인접성 상실"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_large_update_mtu",
+      "_to": "CausalNode/cmd_fix_tcp_mss",
+      "source": "rc_bgp_large_update_mtu",
+      "target": "cmd_fix_tcp_mss",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_duplicate_router_id",
+      "_to": "CausalNode/cmd_fix_bgp_router_id",
+      "source": "rc_bgp_duplicate_router_id",
+      "target": "cmd_fix_bgp_router_id",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_bgp_flap_history",
+      "_to": "CausalNode/cmd_show_log_bgp",
+      "source": "ver_check_bgp_flap_history",
+      "target": "cmd_show_log_bgp",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_routes_inaccessible",
+      "_to": "CausalNode/rc_bgp_missing_next_hop_self",
+      "source": "symptom_bgp_routes_inaccessible",
+      "target": "rc_bgp_missing_next_hop_self",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_routes_inaccessible",
+      "_to": "CausalNode/rc_bgp_next_hop_unreachable",
+      "source": "symptom_bgp_routes_inaccessible",
+      "target": "rc_bgp_next_hop_unreachable",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_routes_inaccessible",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_ospf",
+      "source": "symptom_bgp_routes_inaccessible",
+      "target": "rc_bgp_nexthop_missing_ospf",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_routes_inaccessible",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_isis",
+      "source": "symptom_bgp_routes_inaccessible",
+      "target": "rc_bgp_nexthop_missing_isis",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_routes_inaccessible",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_static",
+      "source": "symptom_bgp_routes_inaccessible",
+      "target": "rc_bgp_nexthop_missing_static",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_routes_inaccessible",
+      "_to": "CausalNode/ver_check_bgp_rib_table",
+      "source": "symptom_bgp_routes_inaccessible",
+      "target": "ver_check_bgp_rib_table",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_routes_inaccessible",
+      "_to": "CausalNode/rc_interface_acl_blocked",
+      "source": "symptom_bgp_routes_inaccessible",
+      "target": "rc_interface_acl_blocked",
+      "relationship": "caused_by",
+      "description": "Next-Hop으로 향하는 트래픽이 인터페이스 ACL에 의해 차단"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_routes_inaccessible",
+      "_to": "CausalNode/rc_pbr_policy_override",
+      "source": "symptom_bgp_routes_inaccessible",
+      "target": "rc_pbr_policy_override",
+      "relationship": "caused_by",
+      "description": "Next-Hop 트래픽이 PBR에 의해 Null0 등으로 강제 리다이렉트"
+    },
+    {
+      "_from": "CausalNode/symptom_bgp_routes_inaccessible",
+      "_to": "CausalNode/ver_check_interface_acl_pbr",
+      "source": "symptom_bgp_routes_inaccessible",
+      "target": "ver_check_interface_acl_pbr",
+      "relationship": "diagnose_with",
+      "description": "OSI L3 인터페이스 ACL 및 PBR 점검"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_missing_next_hop_self",
+      "_to": "CausalNode/cmd_fix_next_hop_self",
+      "source": "rc_bgp_missing_next_hop_self",
+      "target": "cmd_fix_next_hop_self",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_missing_next_hop_self",
+      "_to": "CausalNode/cmd_fix_redistribute_or_declare_ospf",
+      "source": "rc_bgp_missing_next_hop_self",
+      "target": "cmd_fix_redistribute_or_declare_ospf",
+      "relationship": "mitigated_by",
+      "description": "OSPF 재분배/선언을 통한 도달성 해결"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_missing_next_hop_self",
+      "_to": "CausalNode/cmd_fix_interface_ospf_enable",
+      "source": "rc_bgp_missing_next_hop_self",
+      "target": "cmd_fix_interface_ospf_enable",
+      "relationship": "mitigated_by",
+      "description": "인터페이스 레벨 OSPF 직접 활성화"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_missing_next_hop_self",
+      "_to": "CausalNode/ver_bf_bgpRib",
+      "source": "rc_bgp_missing_next_hop_self",
+      "target": "ver_bf_bgpRib",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish bgpRib"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_missing_next_hop_self",
+      "_to": "CausalNode/ver_bf_comparePeerGroupPolicies",
+      "source": "rc_bgp_missing_next_hop_self",
+      "target": "ver_bf_comparePeerGroupPolicies",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish comparePeerGroupPolicies"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_next_hop_unreachable",
+      "_to": "CausalNode/ver_bf_eigrpEdges",
+      "source": "rc_bgp_next_hop_unreachable",
+      "target": "ver_bf_eigrpEdges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish eigrpEdges"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_next_hop_unreachable",
+      "_to": "CausalNode/ver_bf_evpnL3VniProperties",
+      "source": "rc_bgp_next_hop_unreachable",
+      "target": "ver_bf_evpnL3VniProperties",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish evpnL3VniProperties"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_next_hop_unreachable",
+      "_to": "CausalNode/ver_bf_evpnRib",
+      "source": "rc_bgp_next_hop_unreachable",
+      "target": "ver_bf_evpnRib",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish evpnRib"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_nexthop_missing_ospf",
+      "_to": "CausalNode/ver_check_ospf_underlay",
+      "source": "rc_bgp_nexthop_missing_ospf",
+      "target": "ver_check_ospf_underlay",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_nexthop_missing_ospf",
+      "_to": "CausalNode/cmd_fix_ospf_advertise_nexthop",
+      "source": "rc_bgp_nexthop_missing_ospf",
+      "target": "cmd_fix_ospf_advertise_nexthop",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_nexthop_missing_ospf",
+      "_to": "CausalNode/cmd_fix_interface_ospf_enable",
+      "source": "rc_bgp_nexthop_missing_ospf",
+      "target": "cmd_fix_interface_ospf_enable",
+      "relationship": "mitigated_by",
+      "description": "인터페이스 레벨 OSPF 직접 활성화"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_nexthop_missing_ospf",
+      "_to": "CausalNode/ver_bf_routes",
+      "source": "rc_bgp_nexthop_missing_ospf",
+      "target": "ver_bf_routes",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish routes"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_nexthop_missing_isis",
+      "_to": "CausalNode/ver_check_isis_underlay",
+      "source": "rc_bgp_nexthop_missing_isis",
+      "target": "ver_check_isis_underlay",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_nexthop_missing_isis",
+      "_to": "CausalNode/cmd_fix_isis_enable_interface",
+      "source": "rc_bgp_nexthop_missing_isis",
+      "target": "cmd_fix_isis_enable_interface",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_nexthop_missing_isis",
+      "_to": "CausalNode/ver_bf_isisEdges",
+      "source": "rc_bgp_nexthop_missing_isis",
+      "target": "ver_bf_isisEdges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish isisEdges"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_nexthop_missing_static",
+      "_to": "CausalNode/ver_check_static_underlay",
+      "source": "rc_bgp_nexthop_missing_static",
+      "target": "ver_check_static_underlay",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_nexthop_missing_static",
+      "_to": "CausalNode/cmd_fix_add_static_route",
+      "source": "rc_bgp_nexthop_missing_static",
+      "target": "cmd_fix_add_static_route",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_ospf_underlay",
+      "_to": "CausalNode/cmd_show_ip_route_ospf",
+      "source": "ver_check_ospf_underlay",
+      "target": "cmd_show_ip_route_ospf",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_ospf_underlay",
+      "_to": "CausalNode/cmd_show_ip_ospf_neighbor",
+      "source": "ver_check_ospf_underlay",
+      "target": "cmd_show_ip_ospf_neighbor",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_isis_underlay",
+      "_to": "CausalNode/cmd_show_ip_route_isis",
+      "source": "ver_check_isis_underlay",
+      "target": "cmd_show_ip_route_isis",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_isis_underlay",
+      "_to": "CausalNode/cmd_show_isis_neighbors",
+      "source": "ver_check_isis_underlay",
+      "target": "cmd_show_isis_neighbors",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_static_underlay",
+      "_to": "CausalNode/cmd_show_ip_route_static",
+      "source": "ver_check_static_underlay",
+      "target": "cmd_show_ip_route_static",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_ospf_exstart",
+      "_to": "CausalNode/rc_ospf_mtu_mismatch",
+      "source": "symptom_ospf_exstart",
+      "target": "rc_ospf_mtu_mismatch",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_ospf_exstart",
+      "_to": "CausalNode/ver_check_ospf_neighbor",
+      "source": "symptom_ospf_exstart",
+      "target": "ver_check_ospf_neighbor",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_ospf_mtu_mismatch",
+      "_to": "CausalNode/cmd_fix_ospf_mtu",
+      "source": "rc_ospf_mtu_mismatch",
+      "target": "cmd_fix_ospf_mtu",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_ospf_mtu_mismatch",
+      "_to": "CausalNode/ver_bf_ospfEdges",
+      "source": "rc_ospf_mtu_mismatch",
+      "target": "ver_bf_ospfEdges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish ospfEdges"
+    },
+    {
+      "_from": "CausalNode/ver_check_ospf_neighbor",
+      "_to": "CausalNode/cmd_show_ip_ospf_neighbor",
+      "source": "ver_check_ospf_neighbor",
+      "target": "cmd_show_ip_ospf_neighbor",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_input_errors",
+      "_to": "CausalNode/rc_duplex_mismatch",
+      "source": "symptom_input_errors",
+      "target": "rc_duplex_mismatch",
+      "relationship": "caused_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_input_errors",
+      "_to": "CausalNode/ver_check_interface_counters",
+      "source": "symptom_input_errors",
+      "target": "ver_check_interface_counters",
+      "relationship": "diagnose_with",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_duplex_mismatch",
+      "_to": "CausalNode/cmd_fix_duplex_auto",
+      "source": "rc_duplex_mismatch",
+      "target": "cmd_fix_duplex_auto",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_duplex_mismatch",
+      "_to": "CausalNode/ver_bf_interfaceProperties",
+      "source": "rc_duplex_mismatch",
+      "target": "ver_bf_interfaceProperties",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish interfaceProperties"
+    },
+    {
+      "_from": "CausalNode/ver_check_interface_counters",
+      "_to": "CausalNode/cmd_show_interfaces",
+      "source": "ver_check_interface_counters",
+      "target": "cmd_show_interfaces",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_check_interface_acl_pbr",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_check_interface_acl_pbr",
+      "relationship": "verified_by",
+      "description": "인터페이스 ACL 적용 상태 및 카운터 점검"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/cmd_fix_permit_acl_routing",
+      "source": "rc_interface_acl_blocked",
+      "target": "cmd_fix_permit_acl_routing",
+      "relationship": "mitigated_by",
+      "description": "ACL에 라우팅 패킷 허용 룰 추가"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/cmd_fix_remove_interface_acl",
+      "source": "rc_interface_acl_blocked",
+      "target": "cmd_fix_remove_interface_acl",
+      "relationship": "mitigated_by",
+      "description": "인터페이스 차단 ACL 제거"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_traceroute",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_traceroute",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish traceroute"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_bidirectionalTraceroute",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_bidirectionalTraceroute",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish bidirectionalTraceroute"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_bidirectionalReachability",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_bidirectionalReachability",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish bidirectionalReachability"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_filterLineReachability",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_filterLineReachability",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish filterLineReachability"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_testFilters",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_testFilters",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish testFilters"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_searchFilters",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_searchFilters",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish searchFilters"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_findMatchingFilterLines",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_findMatchingFilterLines",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish findMatchingFilterLines"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_filterTable",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_filterTable",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish filterTable"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_compareFilters",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_compareFilters",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish compareFilters"
+    },
+    {
+      "_from": "CausalNode/rc_interface_acl_blocked",
+      "_to": "CausalNode/ver_bf_resolveFilterSpecifier",
+      "source": "rc_interface_acl_blocked",
+      "target": "ver_bf_resolveFilterSpecifier",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish resolveFilterSpecifier"
+    },
+    {
+      "_from": "CausalNode/rc_pbr_policy_override",
+      "_to": "CausalNode/ver_check_interface_acl_pbr",
+      "source": "rc_pbr_policy_override",
+      "target": "ver_check_interface_acl_pbr",
+      "relationship": "verified_by",
+      "description": "PBR 정책 및 route-map 점검"
+    },
+    {
+      "_from": "CausalNode/rc_pbr_policy_override",
+      "_to": "CausalNode/cmd_fix_remove_or_correct_pbr",
+      "source": "rc_pbr_policy_override",
+      "target": "cmd_fix_remove_or_correct_pbr",
+      "relationship": "mitigated_by",
+      "description": "PBR 해제 또는 route-map 수정"
+    },
+    {
+      "_from": "CausalNode/rc_pbr_policy_override",
+      "_to": "CausalNode/ver_bf_differentialReachability",
+      "source": "rc_pbr_policy_override",
+      "target": "ver_bf_differentialReachability",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish differentialReachability"
+    },
+    {
+      "_from": "CausalNode/rc_pbr_policy_override",
+      "_to": "CausalNode/ver_bf_searchRoutePolicies",
+      "source": "rc_pbr_policy_override",
+      "target": "ver_bf_searchRoutePolicies",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish searchRoutePolicies"
+    },
+    {
+      "_from": "CausalNode/rc_pbr_policy_override",
+      "_to": "CausalNode/ver_bf_testRoutePolicies",
+      "source": "rc_pbr_policy_override",
+      "target": "ver_bf_testRoutePolicies",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish testRoutePolicies"
+    },
+    {
+      "_from": "CausalNode/rc_pbr_policy_override",
+      "_to": "CausalNode/ver_bf_compareRoutePolicies",
+      "source": "rc_pbr_policy_override",
+      "target": "ver_bf_compareRoutePolicies",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish compareRoutePolicies"
+    },
+    {
+      "_from": "CausalNode/ver_check_interface_acl_pbr",
+      "_to": "CausalNode/cmd_show_ip_interface",
+      "source": "ver_check_interface_acl_pbr",
+      "target": "cmd_show_ip_interface",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_interface_acl_pbr",
+      "_to": "CausalNode/cmd_show_access_lists",
+      "source": "ver_check_interface_acl_pbr",
+      "target": "cmd_show_access_lists",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_interface_acl_pbr",
+      "_to": "CausalNode/cmd_show_ip_policy",
+      "source": "ver_check_interface_acl_pbr",
+      "target": "cmd_show_ip_policy",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_interface_acl_pbr",
+      "_to": "CausalNode/cmd_show_route_map",
+      "source": "ver_check_interface_acl_pbr",
+      "target": "cmd_show_route_map",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/symptom_ospf_down",
+      "_to": "CausalNode/rc_ospf_area_mismatch",
+      "source": "symptom_ospf_down",
+      "target": "rc_ospf_area_mismatch",
+      "relationship": "leads_to",
+      "description": "symptom_ospf_down can be caused by rc_ospf_area_mismatch"
+    },
+    {
+      "_from": "CausalNode/symptom_ospf_down",
+      "_to": "CausalNode/rc_ospf_mtu_mismatch",
+      "source": "symptom_ospf_down",
+      "target": "rc_ospf_mtu_mismatch",
+      "relationship": "leads_to",
+      "description": "symptom_ospf_down can be caused by rc_ospf_mtu_mismatch"
+    },
+    {
+      "_from": "CausalNode/symptom_ospf_down",
+      "_to": "CausalNode/rc_ospf_hello_dead_mismatch",
+      "source": "symptom_ospf_down",
+      "target": "rc_ospf_hello_dead_mismatch",
+      "relationship": "leads_to",
+      "description": "symptom_ospf_down can be caused by rc_ospf_hello_dead_mismatch"
+    },
+    {
+      "_from": "CausalNode/symptom_ospf_down",
+      "_to": "CausalNode/rc_ospf_duplicate_router_id",
+      "source": "symptom_ospf_down",
+      "target": "rc_ospf_duplicate_router_id",
+      "relationship": "leads_to",
+      "description": "symptom_ospf_down can be caused by rc_ospf_duplicate_router_id"
+    },
+    {
+      "_from": "CausalNode/symptom_ospf_down",
+      "_to": "CausalNode/rc_bgp_nexthop_missing_ospf",
+      "source": "symptom_ospf_down",
+      "target": "rc_bgp_nexthop_missing_ospf",
+      "relationship": "leads_to",
+      "description": "OSPF 언더레이 인접성 붕괴로 인한 BGP Next-Hop 도달 불가 유발"
+    },
+    {
+      "_from": "CausalNode/symptom_ospf_down",
+      "_to": "CausalNode/rc_interface_acl_blocked",
+      "source": "symptom_ospf_down",
+      "target": "rc_interface_acl_blocked",
+      "relationship": "leads_to",
+      "description": "인터페이스 ACL 차단으로 인한 OSPF 제어 트래픽 차단 및 네이버 불능"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_routing_loop",
+      "source": "symptom_packet_drop",
+      "target": "rc_routing_loop",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_routing_loop"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_interface_acl_blocked",
+      "source": "symptom_packet_drop",
+      "target": "rc_interface_acl_blocked",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_interface_acl_blocked"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_missing_route",
+      "source": "symptom_packet_drop",
+      "target": "rc_missing_route",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_missing_route"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_pbr_policy_override",
+      "source": "symptom_packet_drop",
+      "target": "rc_pbr_policy_override",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_pbr_policy_override"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_ip_collision",
+      "source": "symptom_packet_drop",
+      "target": "rc_ip_collision",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_ip_collision"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_fhrp_split_brain",
+      "source": "symptom_packet_drop",
+      "target": "rc_fhrp_split_brain",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_fhrp_split_brain"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_vxlan_tunnel_down",
+      "source": "symptom_packet_drop",
+      "target": "rc_vxlan_tunnel_down",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_vxlan_tunnel_down"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_vxlan_vni_missing",
+      "source": "symptom_packet_drop",
+      "target": "rc_vxlan_vni_missing",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_vxlan_vni_missing"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_ipsec_tunnel_down",
+      "source": "symptom_packet_drop",
+      "target": "rc_ipsec_tunnel_down",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_ipsec_tunnel_down"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_ipsec_auth_mismatch",
+      "source": "symptom_packet_drop",
+      "target": "rc_ipsec_auth_mismatch",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_ipsec_auth_mismatch"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_snmp_acl_blocked",
+      "source": "symptom_packet_drop",
+      "target": "rc_snmp_acl_blocked",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_snmp_acl_blocked"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_vip_unreachable",
+      "source": "symptom_packet_drop",
+      "target": "rc_vip_unreachable",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_vip_unreachable"
+    },
+    {
+      "_from": "CausalNode/symptom_packet_drop",
+      "_to": "CausalNode/rc_undefined_acl_reference",
+      "source": "symptom_packet_drop",
+      "target": "rc_undefined_acl_reference",
+      "relationship": "leads_to",
+      "description": "symptom_packet_drop can be caused by rc_undefined_acl_reference"
+    },
+    {
+      "_from": "CausalNode/symptom_route_missing",
+      "_to": "CausalNode/rc_missing_route",
+      "source": "symptom_route_missing",
+      "target": "rc_missing_route",
+      "relationship": "leads_to",
+      "description": "symptom_route_missing can be caused by rc_missing_route"
+    },
+    {
+      "_from": "CausalNode/symptom_interface_down",
+      "_to": "CausalNode/rc_interface_flapping",
+      "source": "symptom_interface_down",
+      "target": "rc_interface_flapping",
+      "relationship": "leads_to",
+      "description": "symptom_interface_down can be caused by rc_interface_flapping"
+    },
+    {
+      "_from": "CausalNode/symptom_interface_down",
+      "_to": "CausalNode/rc_interface_shutdown",
+      "source": "symptom_interface_down",
+      "target": "rc_interface_shutdown",
+      "relationship": "leads_to",
+      "description": "symptom_interface_down can be caused by rc_interface_shutdown"
+    },
+    {
+      "_from": "CausalNode/symptom_interface_down",
+      "_to": "CausalNode/rc_duplex_mismatch",
+      "source": "symptom_interface_down",
+      "target": "rc_duplex_mismatch",
+      "relationship": "leads_to",
+      "description": "symptom_interface_down can be caused by rc_duplex_mismatch"
+    },
+    {
+      "_from": "CausalNode/symptom_interface_down",
+      "_to": "CausalNode/rc_vlan_mismatch",
+      "source": "symptom_interface_down",
+      "target": "rc_vlan_mismatch",
+      "relationship": "leads_to",
+      "description": "symptom_interface_down can be caused by rc_vlan_mismatch"
+    },
+    {
+      "_from": "CausalNode/symptom_interface_down",
+      "_to": "CausalNode/rc_lacp_misconfig",
+      "source": "symptom_interface_down",
+      "target": "rc_lacp_misconfig",
+      "relationship": "leads_to",
+      "description": "symptom_interface_down can be caused by rc_lacp_misconfig"
+    },
+    {
+      "_from": "CausalNode/rc_ospf_area_mismatch",
+      "_to": "CausalNode/ver_bf_ospfAreaConfiguration",
+      "source": "rc_ospf_area_mismatch",
+      "target": "ver_bf_ospfAreaConfiguration",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish ospfAreaConfiguration"
+    },
+    {
+      "_from": "CausalNode/rc_ospf_hello_dead_mismatch",
+      "_to": "CausalNode/ver_bf_ospfInterfaceConfiguration",
+      "source": "rc_ospf_hello_dead_mismatch",
+      "target": "ver_bf_ospfInterfaceConfiguration",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish ospfInterfaceConfiguration"
+    },
+    {
+      "_from": "CausalNode/rc_missing_route",
+      "_to": "CausalNode/ver_bf_prefixTracer",
+      "source": "rc_missing_route",
+      "target": "ver_bf_prefixTracer",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish prefixTracer"
+    },
+    {
+      "_from": "CausalNode/rc_missing_route",
+      "_to": "CausalNode/ver_bf_lpmRoutes",
+      "source": "rc_missing_route",
+      "target": "ver_bf_lpmRoutes",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish lpmRoutes"
+    },
+    {
+      "_from": "CausalNode/rc_missing_route",
+      "_to": "CausalNode/ver_bf_reachability",
+      "source": "rc_missing_route",
+      "target": "ver_bf_reachability",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish reachability"
+    },
+    {
+      "_from": "CausalNode/rc_missing_route",
+      "_to": "CausalNode/ver_bf_transferBDDValidation",
+      "source": "rc_missing_route",
+      "target": "ver_bf_transferBDDValidation",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish transferBDDValidation"
+    },
+    {
+      "_from": "CausalNode/rc_missing_route",
+      "_to": "CausalNode/ver_bf_resolveIpSpecifier",
+      "source": "rc_missing_route",
+      "target": "ver_bf_resolveIpSpecifier",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish resolveIpSpecifier"
+    },
+    {
+      "_from": "CausalNode/rc_routing_loop",
+      "_to": "CausalNode/ver_bf_multipathConsistency",
+      "source": "rc_routing_loop",
+      "target": "ver_bf_multipathConsistency",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish multipathConsistency"
+    },
+    {
+      "_from": "CausalNode/rc_routing_loop",
+      "_to": "CausalNode/ver_bf_subnetMultipathConsistency",
+      "source": "rc_routing_loop",
+      "target": "ver_bf_subnetMultipathConsistency",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish subnetMultipathConsistency"
+    },
+    {
+      "_from": "CausalNode/rc_routing_loop",
+      "_to": "CausalNode/ver_bf_loopbackMultipathConsistency",
+      "source": "rc_routing_loop",
+      "target": "ver_bf_loopbackMultipathConsistency",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish loopbackMultipathConsistency"
+    },
+    {
+      "_from": "CausalNode/rc_routing_loop",
+      "_to": "CausalNode/ver_bf_detectLoops",
+      "source": "rc_routing_loop",
+      "target": "ver_bf_detectLoops",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish detectLoops"
+    },
+    {
+      "_from": "CausalNode/rc_ip_collision",
+      "_to": "CausalNode/ver_bf_ipOwners",
+      "source": "rc_ip_collision",
+      "target": "ver_bf_ipOwners",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish ipOwners"
+    },
+    {
+      "_from": "CausalNode/rc_ip_collision",
+      "_to": "CausalNode/ver_bf_resolveIpsOfLocationSpecifier",
+      "source": "rc_ip_collision",
+      "target": "ver_bf_resolveIpsOfLocationSpecifier",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish resolveIpsOfLocationSpecifier"
+    },
+    {
+      "_from": "CausalNode/rc_vlan_mismatch",
+      "_to": "CausalNode/ver_bf_switchedVlanProperties",
+      "source": "rc_vlan_mismatch",
+      "target": "ver_bf_switchedVlanProperties",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish switchedVlanProperties"
+    },
+    {
+      "_from": "CausalNode/rc_fhrp_split_brain",
+      "_to": "CausalNode/ver_bf_hsrpProperties",
+      "source": "rc_fhrp_split_brain",
+      "target": "ver_bf_hsrpProperties",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish hsrpProperties"
+    },
+    {
+      "_from": "CausalNode/rc_fhrp_split_brain",
+      "_to": "CausalNode/ver_bf_vrrpProperties",
+      "source": "rc_fhrp_split_brain",
+      "target": "ver_bf_vrrpProperties",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish vrrpProperties"
+    },
+    {
+      "_from": "CausalNode/rc_lacp_misconfig",
+      "_to": "CausalNode/ver_bf_mlagProperties",
+      "source": "rc_lacp_misconfig",
+      "target": "ver_bf_mlagProperties",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish mlagProperties"
+    },
+    {
+      "_from": "CausalNode/rc_vxlan_tunnel_down",
+      "_to": "CausalNode/ver_bf_vxlanEdges",
+      "source": "rc_vxlan_tunnel_down",
+      "target": "ver_bf_vxlanEdges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish vxlanEdges"
+    },
+    {
+      "_from": "CausalNode/rc_vxlan_vni_missing",
+      "_to": "CausalNode/ver_bf_vxlanVniProperties",
+      "source": "rc_vxlan_vni_missing",
+      "target": "ver_bf_vxlanVniProperties",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish vxlanVniProperties"
+    },
+    {
+      "_from": "CausalNode/rc_ipsec_tunnel_down",
+      "_to": "CausalNode/ver_bf_ipsecEdges",
+      "source": "rc_ipsec_tunnel_down",
+      "target": "ver_bf_ipsecEdges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish ipsecEdges"
+    },
+    {
+      "_from": "CausalNode/rc_ipsec_auth_mismatch",
+      "_to": "CausalNode/ver_bf_ipsecSessionStatus",
+      "source": "rc_ipsec_auth_mismatch",
+      "target": "ver_bf_ipsecSessionStatus",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish ipsecSessionStatus"
+    },
+    {
+      "_from": "CausalNode/rc_system_clock_skew",
+      "_to": "CausalNode/ver_bf_nodeProperties",
+      "source": "rc_system_clock_skew",
+      "target": "ver_bf_nodeProperties",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish nodeProperties"
+    },
+    {
+      "_from": "CausalNode/rc_snmp_acl_blocked",
+      "_to": "CausalNode/ver_bf_snmpCommunityClients",
+      "source": "rc_snmp_acl_blocked",
+      "target": "ver_bf_snmpCommunityClients",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish snmpCommunityClients"
+    },
+    {
+      "_from": "CausalNode/rc_aaa_login_failure",
+      "_to": "CausalNode/ver_bf_aaaAuthenticationLogin",
+      "source": "rc_aaa_login_failure",
+      "target": "ver_bf_aaaAuthenticationLogin",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish aaaAuthenticationLogin"
+    },
+    {
+      "_from": "CausalNode/rc_vip_unreachable",
+      "_to": "CausalNode/ver_bf_a10VirtualServerConfiguration",
+      "source": "rc_vip_unreachable",
+      "target": "ver_bf_a10VirtualServerConfiguration",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish a10VirtualServerConfiguration"
+    },
+    {
+      "_from": "CausalNode/rc_vip_unreachable",
+      "_to": "CausalNode/ver_bf_f5BigipVipConfiguration",
+      "source": "rc_vip_unreachable",
+      "target": "ver_bf_f5BigipVipConfiguration",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish f5BigipVipConfiguration"
+    },
+    {
+      "_from": "CausalNode/rc_config_syntax_error",
+      "_to": "CausalNode/ver_bf_initIssues",
+      "source": "rc_config_syntax_error",
+      "target": "ver_bf_initIssues",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish initIssues"
+    },
+    {
+      "_from": "CausalNode/rc_config_syntax_error",
+      "_to": "CausalNode/ver_bf_parseWarning",
+      "source": "rc_config_syntax_error",
+      "target": "ver_bf_parseWarning",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish parseWarning"
+    },
+    {
+      "_from": "CausalNode/rc_config_syntax_error",
+      "_to": "CausalNode/ver_bf_fileParseStatus",
+      "source": "rc_config_syntax_error",
+      "target": "ver_bf_fileParseStatus",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish fileParseStatus"
+    },
+    {
+      "_from": "CausalNode/rc_config_syntax_error",
+      "_to": "CausalNode/ver_bf_definedStructures",
+      "source": "rc_config_syntax_error",
+      "target": "ver_bf_definedStructures",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish definedStructures"
+    },
+    {
+      "_from": "CausalNode/rc_config_syntax_error",
+      "_to": "CausalNode/ver_bf_referencedStructures",
+      "source": "rc_config_syntax_error",
+      "target": "ver_bf_referencedStructures",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish referencedStructures"
+    },
+    {
+      "_from": "CausalNode/rc_config_syntax_error",
+      "_to": "CausalNode/ver_bf_viConversionStatus",
+      "source": "rc_config_syntax_error",
+      "target": "ver_bf_viConversionStatus",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish viConversionStatus"
+    },
+    {
+      "_from": "CausalNode/rc_config_syntax_error",
+      "_to": "CausalNode/ver_bf_viConversionWarning",
+      "source": "rc_config_syntax_error",
+      "target": "ver_bf_viConversionWarning",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish viConversionWarning"
+    },
+    {
+      "_from": "CausalNode/rc_config_syntax_error",
+      "_to": "CausalNode/ver_bf_viModel",
+      "source": "rc_config_syntax_error",
+      "target": "ver_bf_viModel",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish viModel"
+    },
+    {
+      "_from": "CausalNode/rc_config_syntax_error",
+      "_to": "CausalNode/ver_bf_namedStructures",
+      "source": "rc_config_syntax_error",
+      "target": "ver_bf_namedStructures",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish namedStructures"
+    },
+    {
+      "_from": "CausalNode/rc_undefined_acl_reference",
+      "_to": "CausalNode/ver_bf_undefinedReferences",
+      "source": "rc_undefined_acl_reference",
+      "target": "ver_bf_undefinedReferences",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish undefinedReferences"
+    },
+    {
+      "_from": "CausalNode/rc_unused_policy_waste",
+      "_to": "CausalNode/ver_bf_unusedStructures",
+      "source": "rc_unused_policy_waste",
+      "target": "ver_bf_unusedStructures",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish unusedStructures"
+    },
+    {
+      "_from": "CausalNode/rc_node_resolution_failed",
+      "_to": "CausalNode/ver_bf_resolveNodeSpecifier",
+      "source": "rc_node_resolution_failed",
+      "target": "ver_bf_resolveNodeSpecifier",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish resolveNodeSpecifier"
+    },
+    {
+      "_from": "CausalNode/rc_api_unsupported",
+      "_to": "CausalNode/ver_bf_list",
+      "source": "rc_api_unsupported",
+      "target": "ver_bf_list",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish list"
+    },
+    {
+      "_from": "CausalNode/rc_api_unsupported",
+      "_to": "CausalNode/ver_bf_list_tags",
+      "source": "rc_api_unsupported",
+      "target": "ver_bf_list_tags",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish list_tags"
+    },
+    {
+      "_from": "CausalNode/rc_api_unsupported",
+      "_to": "CausalNode/ver_bf_load",
+      "source": "rc_api_unsupported",
+      "target": "ver_bf_load",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish load"
+    },
+    {
+      "_from": "CausalNode/ver_bf_bgpEdges",
+      "_to": "CausalNode/cmd_show_ip_bgp_summary",
+      "source": "ver_bf_bgpEdges",
+      "target": "cmd_show_ip_bgp_summary",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip bgp summary"
+    },
+    {
+      "_from": "CausalNode/ver_bf_bgpPeerConfiguration",
+      "_to": "CausalNode/cmd_show_ip_bgp_neighbors",
+      "source": "ver_bf_bgpPeerConfiguration",
+      "target": "cmd_show_ip_bgp_neighbors",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip bgp neighbors"
+    },
+    {
+      "_from": "CausalNode/ver_bf_bgpProcessConfiguration",
+      "_to": "CausalNode/cmd_show_run_bgp",
+      "source": "ver_bf_bgpProcessConfiguration",
+      "target": "cmd_show_run_bgp",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config | section router bgp"
+    },
+    {
+      "_from": "CausalNode/ver_bf_bgpRib",
+      "_to": "CausalNode/cmd_show_ip_bgp_prefix",
+      "source": "ver_bf_bgpRib",
+      "target": "cmd_show_ip_bgp_prefix",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip bgp"
+    },
+    {
+      "_from": "CausalNode/ver_bf_bgpSessionCompatibility",
+      "_to": "CausalNode/cmd_show_ip_bgp_neighbors",
+      "source": "ver_bf_bgpSessionCompatibility",
+      "target": "cmd_show_ip_bgp_neighbors",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip bgp neighbors"
+    },
+    {
+      "_from": "CausalNode/ver_bf_bgpSessionStatus",
+      "_to": "CausalNode/cmd_show_ip_bgp_summary",
+      "source": "ver_bf_bgpSessionStatus",
+      "target": "cmd_show_ip_bgp_summary",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip bgp summary"
+    },
+    {
+      "_from": "CausalNode/ver_bf_comparePeerGroupPolicies",
+      "_to": "CausalNode/cmd_pair_comparePeerGroupPolicies",
+      "source": "ver_bf_comparePeerGroupPolicies",
+      "target": "cmd_pair_comparePeerGroupPolicies",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip bgp template peer-policy"
+    },
+    {
+      "_from": "CausalNode/ver_bf_ospfAreaConfiguration",
+      "_to": "CausalNode/cmd_pair_ospfAreaConfiguration",
+      "source": "ver_bf_ospfAreaConfiguration",
+      "target": "cmd_pair_ospfAreaConfiguration",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip ospf"
+    },
+    {
+      "_from": "CausalNode/ver_bf_ospfEdges",
+      "_to": "CausalNode/cmd_show_ip_ospf_neighbor",
+      "source": "ver_bf_ospfEdges",
+      "target": "cmd_show_ip_ospf_neighbor",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip ospf neighbor"
+    },
+    {
+      "_from": "CausalNode/ver_bf_ospfInterfaceConfiguration",
+      "_to": "CausalNode/cmd_pair_ospfInterfaceConfiguration",
+      "source": "ver_bf_ospfInterfaceConfiguration",
+      "target": "cmd_pair_ospfInterfaceConfiguration",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip ospf interface"
+    },
+    {
+      "_from": "CausalNode/ver_bf_ospfProcessConfiguration",
+      "_to": "CausalNode/cmd_pair_ospfAreaConfiguration",
+      "source": "ver_bf_ospfProcessConfiguration",
+      "target": "cmd_pair_ospfAreaConfiguration",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip ospf"
+    },
+    {
+      "_from": "CausalNode/ver_bf_ospfSessionCompatibility",
+      "_to": "CausalNode/cmd_show_ip_ospf_neighbor",
+      "source": "ver_bf_ospfSessionCompatibility",
+      "target": "cmd_show_ip_ospf_neighbor",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip ospf neighbor"
+    },
+    {
+      "_from": "CausalNode/ver_bf_isisEdges",
+      "_to": "CausalNode/cmd_show_isis_neighbors",
+      "source": "ver_bf_isisEdges",
+      "target": "cmd_show_isis_neighbors",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show isis neighbors"
+    },
+    {
+      "_from": "CausalNode/ver_bf_eigrpEdges",
+      "_to": "CausalNode/cmd_pair_eigrpEdges",
+      "source": "ver_bf_eigrpEdges",
+      "target": "cmd_pair_eigrpEdges",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip eigrp neighbors"
+    },
+    {
+      "_from": "CausalNode/ver_bf_evpnL3VniProperties",
+      "_to": "CausalNode/cmd_pair_evpnL3VniProperties",
+      "source": "ver_bf_evpnL3VniProperties",
+      "target": "cmd_pair_evpnL3VniProperties",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show nve vni"
+    },
+    {
+      "_from": "CausalNode/ver_bf_evpnRib",
+      "_to": "CausalNode/cmd_pair_evpnRib",
+      "source": "ver_bf_evpnRib",
+      "target": "cmd_pair_evpnRib",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show bgp l2vpn evpn"
+    },
+    {
+      "_from": "CausalNode/ver_bf_prefixTracer",
+      "_to": "CausalNode/cmd_pair_prefixTracer",
+      "source": "ver_bf_prefixTracer",
+      "target": "cmd_pair_prefixTracer",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip route {prefix}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_routes",
+      "_to": "CausalNode/cmd_pair_routes",
+      "source": "ver_bf_routes",
+      "target": "cmd_pair_routes",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip route"
+    },
+    {
+      "_from": "CausalNode/ver_bf_lpmRoutes",
+      "_to": "CausalNode/cmd_pair_lpmRoutes",
+      "source": "ver_bf_lpmRoutes",
+      "target": "cmd_pair_lpmRoutes",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip route {ip} longer-prefixes"
+    },
+    {
+      "_from": "CausalNode/ver_bf_multipathConsistency",
+      "_to": "CausalNode/cmd_pair_multipathConsistency",
+      "source": "ver_bf_multipathConsistency",
+      "target": "cmd_pair_multipathConsistency",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip cef exact-route {src} {dst}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_subnetMultipathConsistency",
+      "_to": "CausalNode/cmd_pair_subnetMultipathConsistency",
+      "source": "ver_bf_subnetMultipathConsistency",
+      "target": "cmd_pair_subnetMultipathConsistency",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip cef {subnet}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_loopbackMultipathConsistency",
+      "_to": "CausalNode/cmd_pair_loopbackMultipathConsistency",
+      "source": "ver_bf_loopbackMultipathConsistency",
+      "target": "cmd_pair_loopbackMultipathConsistency",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip cef {loopback_ip}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_detectLoops",
+      "_to": "CausalNode/cmd_pair_detectLoops",
+      "source": "ver_bf_detectLoops",
+      "target": "cmd_pair_detectLoops",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: traceroute {ip}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_traceroute",
+      "_to": "CausalNode/cmd_pair_traceroute",
+      "source": "ver_bf_traceroute",
+      "target": "cmd_pair_traceroute",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: traceroute {dst} source {src}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_bidirectionalTraceroute",
+      "_to": "CausalNode/cmd_pair_traceroute",
+      "source": "ver_bf_bidirectionalTraceroute",
+      "target": "cmd_pair_traceroute",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: traceroute {dst} source {src}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_reachability",
+      "_to": "CausalNode/cmd_pair_reachability",
+      "source": "ver_bf_reachability",
+      "target": "cmd_pair_reachability",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: ping {dst} source {src}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_bidirectionalReachability",
+      "_to": "CausalNode/cmd_pair_bidirectionalReachability",
+      "source": "ver_bf_bidirectionalReachability",
+      "target": "cmd_pair_bidirectionalReachability",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: ping {dst} source {src} repeat 5"
+    },
+    {
+      "_from": "CausalNode/ver_bf_differentialReachability",
+      "_to": "CausalNode/cmd_pair_differentialReachability",
+      "source": "ver_bf_differentialReachability",
+      "target": "cmd_pair_differentialReachability",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show archive config differences"
+    },
+    {
+      "_from": "CausalNode/ver_bf_transferBDDValidation",
+      "_to": "CausalNode/cmd_pair_transferBDDValidation",
+      "source": "ver_bf_transferBDDValidation",
+      "target": "cmd_pair_transferBDDValidation",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip cef"
+    },
+    {
+      "_from": "CausalNode/ver_bf_filterLineReachability",
+      "_to": "CausalNode/cmd_pair_filterLineReachability",
+      "source": "ver_bf_filterLineReachability",
+      "target": "cmd_pair_filterLineReachability",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip access-lists"
+    },
+    {
+      "_from": "CausalNode/ver_bf_testFilters",
+      "_to": "CausalNode/cmd_pair_testFilters",
+      "source": "ver_bf_testFilters",
+      "target": "cmd_pair_testFilters",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip access-lists {acl_name}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_searchFilters",
+      "_to": "CausalNode/cmd_pair_filterLineReachability",
+      "source": "ver_bf_searchFilters",
+      "target": "cmd_pair_filterLineReachability",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip access-lists"
+    },
+    {
+      "_from": "CausalNode/ver_bf_findMatchingFilterLines",
+      "_to": "CausalNode/cmd_pair_findMatchingFilterLines",
+      "source": "ver_bf_findMatchingFilterLines",
+      "target": "cmd_pair_findMatchingFilterLines",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip access-lists {acl_name}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_filterTable",
+      "_to": "CausalNode/cmd_pair_filterTable",
+      "source": "ver_bf_filterTable",
+      "target": "cmd_pair_filterTable",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show access-lists"
+    },
+    {
+      "_from": "CausalNode/ver_bf_compareFilters",
+      "_to": "CausalNode/cmd_pair_differentialReachability",
+      "source": "ver_bf_compareFilters",
+      "target": "cmd_pair_differentialReachability",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show archive config differences"
+    },
+    {
+      "_from": "CausalNode/ver_bf_searchRoutePolicies",
+      "_to": "CausalNode/cmd_show_route_map",
+      "source": "ver_bf_searchRoutePolicies",
+      "target": "cmd_show_route_map",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show route-map"
+    },
+    {
+      "_from": "CausalNode/ver_bf_testRoutePolicies",
+      "_to": "CausalNode/cmd_show_route_map",
+      "source": "ver_bf_testRoutePolicies",
+      "target": "cmd_show_route_map",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show route-map"
+    },
+    {
+      "_from": "CausalNode/ver_bf_compareRoutePolicies",
+      "_to": "CausalNode/cmd_pair_differentialReachability",
+      "source": "ver_bf_compareRoutePolicies",
+      "target": "cmd_pair_differentialReachability",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show archive config differences"
+    },
+    {
+      "_from": "CausalNode/ver_bf_edges",
+      "_to": "CausalNode/cmd_pair_edges",
+      "source": "ver_bf_edges",
+      "target": "cmd_pair_edges",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show cdp neighbors detail"
+    },
+    {
+      "_from": "CausalNode/ver_bf_layer1Edges",
+      "_to": "CausalNode/cmd_pair_layer1Edges",
+      "source": "ver_bf_layer1Edges",
+      "target": "cmd_pair_layer1Edges",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show cdp neighbors"
+    },
+    {
+      "_from": "CausalNode/ver_bf_userProvidedLayer1Edges",
+      "_to": "CausalNode/cmd_pair_edges",
+      "source": "ver_bf_userProvidedLayer1Edges",
+      "target": "cmd_pair_edges",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show cdp neighbors detail"
+    },
+    {
+      "_from": "CausalNode/ver_bf_layer3Edges",
+      "_to": "CausalNode/cmd_show_ip_int_brief",
+      "source": "ver_bf_layer3Edges",
+      "target": "cmd_show_ip_int_brief",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip interface brief"
+    },
+    {
+      "_from": "CausalNode/ver_bf_interfaceProperties",
+      "_to": "CausalNode/cmd_pair_interfaceProperties",
+      "source": "ver_bf_interfaceProperties",
+      "target": "cmd_pair_interfaceProperties",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show interfaces"
+    },
+    {
+      "_from": "CausalNode/ver_bf_interfaceMtu",
+      "_to": "CausalNode/cmd_pair_interfaceMtu",
+      "source": "ver_bf_interfaceMtu",
+      "target": "cmd_pair_interfaceMtu",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show interfaces | include MTU"
+    },
+    {
+      "_from": "CausalNode/ver_bf_ipOwners",
+      "_to": "CausalNode/cmd_show_ip_int_brief",
+      "source": "ver_bf_ipOwners",
+      "target": "cmd_show_ip_int_brief",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip interface brief"
+    },
+    {
+      "_from": "CausalNode/ver_bf_switchedVlanProperties",
+      "_to": "CausalNode/cmd_pair_switchedVlanProperties",
+      "source": "ver_bf_switchedVlanProperties",
+      "target": "cmd_pair_switchedVlanProperties",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show vlan brief"
+    },
+    {
+      "_from": "CausalNode/ver_bf_hsrpProperties",
+      "_to": "CausalNode/cmd_pair_hsrpProperties",
+      "source": "ver_bf_hsrpProperties",
+      "target": "cmd_pair_hsrpProperties",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show standby brief"
+    },
+    {
+      "_from": "CausalNode/ver_bf_vrrpProperties",
+      "_to": "CausalNode/cmd_pair_vrrpProperties",
+      "source": "ver_bf_vrrpProperties",
+      "target": "cmd_pair_vrrpProperties",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show vrrp brief"
+    },
+    {
+      "_from": "CausalNode/ver_bf_mlagProperties",
+      "_to": "CausalNode/cmd_pair_mlagProperties",
+      "source": "ver_bf_mlagProperties",
+      "target": "cmd_pair_mlagProperties",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show etherchannel summary"
+    },
+    {
+      "_from": "CausalNode/ver_bf_vxlanEdges",
+      "_to": "CausalNode/cmd_pair_vxlanEdges",
+      "source": "ver_bf_vxlanEdges",
+      "target": "cmd_pair_vxlanEdges",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show nve peers"
+    },
+    {
+      "_from": "CausalNode/ver_bf_vxlanVniProperties",
+      "_to": "CausalNode/cmd_pair_vxlanVniProperties",
+      "source": "ver_bf_vxlanVniProperties",
+      "target": "cmd_pair_vxlanVniProperties",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show nve vni"
+    },
+    {
+      "_from": "CausalNode/ver_bf_ipsecEdges",
+      "_to": "CausalNode/cmd_pair_ipsecEdges",
+      "source": "ver_bf_ipsecEdges",
+      "target": "cmd_pair_ipsecEdges",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show crypto ipsec sa"
+    },
+    {
+      "_from": "CausalNode/ver_bf_ipsecSessionStatus",
+      "_to": "CausalNode/cmd_pair_ipsecSessionStatus",
+      "source": "ver_bf_ipsecSessionStatus",
+      "target": "cmd_pair_ipsecSessionStatus",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show crypto session"
+    },
+    {
+      "_from": "CausalNode/ver_bf_nodeProperties",
+      "_to": "CausalNode/cmd_pair_nodeProperties",
+      "source": "ver_bf_nodeProperties",
+      "target": "cmd_pair_nodeProperties",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show version"
+    },
+    {
+      "_from": "CausalNode/ver_bf_snmpCommunityClients",
+      "_to": "CausalNode/cmd_pair_snmpCommunityClients",
+      "source": "ver_bf_snmpCommunityClients",
+      "target": "cmd_pair_snmpCommunityClients",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show snmp community"
+    },
+    {
+      "_from": "CausalNode/ver_bf_aaaAuthenticationLogin",
+      "_to": "CausalNode/cmd_pair_aaaAuthenticationLogin",
+      "source": "ver_bf_aaaAuthenticationLogin",
+      "target": "cmd_pair_aaaAuthenticationLogin",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config | section line vty"
+    },
+    {
+      "_from": "CausalNode/ver_bf_a10VirtualServerConfiguration",
+      "_to": "CausalNode/cmd_pair_a10VirtualServerConfiguration",
+      "source": "ver_bf_a10VirtualServerConfiguration",
+      "target": "cmd_pair_a10VirtualServerConfiguration",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip virtual-reassembly"
+    },
+    {
+      "_from": "CausalNode/ver_bf_f5BigipVipConfiguration",
+      "_to": "CausalNode/cmd_pair_f5BigipVipConfiguration",
+      "source": "ver_bf_f5BigipVipConfiguration",
+      "target": "cmd_pair_f5BigipVipConfiguration",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config | section vrf"
+    },
+    {
+      "_from": "CausalNode/ver_bf_initIssues",
+      "_to": "CausalNode/cmd_show_running_config",
+      "source": "ver_bf_initIssues",
+      "target": "cmd_show_running_config",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show logging"
+    },
+    {
+      "_from": "CausalNode/ver_bf_parseWarning",
+      "_to": "CausalNode/cmd_show_running_config",
+      "source": "ver_bf_parseWarning",
+      "target": "cmd_show_running_config",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config"
+    },
+    {
+      "_from": "CausalNode/ver_bf_fileParseStatus",
+      "_to": "CausalNode/cmd_pair_fileParseStatus",
+      "source": "ver_bf_fileParseStatus",
+      "target": "cmd_pair_fileParseStatus",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config"
+    },
+    {
+      "_from": "CausalNode/ver_bf_definedStructures",
+      "_to": "CausalNode/cmd_pair_definedStructures",
+      "source": "ver_bf_definedStructures",
+      "target": "cmd_pair_definedStructures",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config | section {type}"
+    },
+    {
+      "_from": "CausalNode/ver_bf_referencedStructures",
+      "_to": "CausalNode/cmd_pair_referencedStructures",
+      "source": "ver_bf_referencedStructures",
+      "target": "cmd_pair_referencedStructures",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config"
+    },
+    {
+      "_from": "CausalNode/ver_bf_undefinedReferences",
+      "_to": "CausalNode/cmd_show_running_config",
+      "source": "ver_bf_undefinedReferences",
+      "target": "cmd_show_running_config",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config"
+    },
+    {
+      "_from": "CausalNode/ver_bf_unusedStructures",
+      "_to": "CausalNode/cmd_show_running_config",
+      "source": "ver_bf_unusedStructures",
+      "target": "cmd_show_running_config",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config"
+    },
+    {
+      "_from": "CausalNode/ver_bf_viConversionStatus",
+      "_to": "CausalNode/cmd_pair_nodeProperties",
+      "source": "ver_bf_viConversionStatus",
+      "target": "cmd_pair_nodeProperties",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show version"
+    },
+    {
+      "_from": "CausalNode/ver_bf_viConversionWarning",
+      "_to": "CausalNode/cmd_show_running_config",
+      "source": "ver_bf_viConversionWarning",
+      "target": "cmd_show_running_config",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config"
+    },
+    {
+      "_from": "CausalNode/ver_bf_viModel",
+      "_to": "CausalNode/cmd_pair_viModel",
+      "source": "ver_bf_viModel",
+      "target": "cmd_pair_viModel",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config"
+    },
+    {
+      "_from": "CausalNode/ver_bf_resolveNodeSpecifier",
+      "_to": "CausalNode/cmd_pair_resolveNodeSpecifier",
+      "source": "ver_bf_resolveNodeSpecifier",
+      "target": "cmd_pair_resolveNodeSpecifier",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show hosts"
+    },
+    {
+      "_from": "CausalNode/ver_bf_resolveInterfaceSpecifier",
+      "_to": "CausalNode/cmd_show_ip_int_brief",
+      "source": "ver_bf_resolveInterfaceSpecifier",
+      "target": "cmd_show_ip_int_brief",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip interface brief"
+    },
+    {
+      "_from": "CausalNode/ver_bf_resolveFilterSpecifier",
+      "_to": "CausalNode/cmd_pair_filterLineReachability",
+      "source": "ver_bf_resolveFilterSpecifier",
+      "target": "cmd_pair_filterLineReachability",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip access-lists"
+    },
+    {
+      "_from": "CausalNode/ver_bf_resolveIpSpecifier",
+      "_to": "CausalNode/cmd_pair_routes",
+      "source": "ver_bf_resolveIpSpecifier",
+      "target": "cmd_pair_routes",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip route"
+    },
+    {
+      "_from": "CausalNode/ver_bf_resolveLocationSpecifier",
+      "_to": "CausalNode/cmd_show_ip_int_brief",
+      "source": "ver_bf_resolveLocationSpecifier",
+      "target": "cmd_show_ip_int_brief",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip interface brief"
+    },
+    {
+      "_from": "CausalNode/ver_bf_resolveIpsOfLocationSpecifier",
+      "_to": "CausalNode/cmd_show_ip_int_brief",
+      "source": "ver_bf_resolveIpsOfLocationSpecifier",
+      "target": "cmd_show_ip_int_brief",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show ip interface brief"
+    },
+    {
+      "_from": "CausalNode/ver_bf_namedStructures",
+      "_to": "CausalNode/cmd_show_running_config",
+      "source": "ver_bf_namedStructures",
+      "target": "cmd_show_running_config",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: show running-config"
+    },
+    {
+      "_from": "CausalNode/ver_bf_list",
+      "_to": "CausalNode/cmd_pair_list",
+      "source": "ver_bf_list",
+      "target": "cmd_pair_list",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: help"
+    },
+    {
+      "_from": "CausalNode/ver_bf_list_tags",
+      "_to": "CausalNode/cmd_pair_list",
+      "source": "ver_bf_list_tags",
+      "target": "cmd_pair_list",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: help"
+    },
+    {
+      "_from": "CausalNode/ver_bf_load",
+      "_to": "CausalNode/cmd_pair_load",
+      "source": "ver_bf_load",
+      "target": "cmd_pair_load",
+      "relationship": "executes_command",
+      "description": "Executes Cisco CLI: copy running-config ..."
+    },
+    {
+      "_from": "CausalNode/rc_bgp_admin_shutdown",
+      "_to": "CausalNode/ver_check_bgp_admin",
+      "source": "rc_bgp_admin_shutdown",
+      "target": "ver_check_bgp_admin",
+      "relationship": "verified_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_admin_shutdown",
+      "_to": "CausalNode/cmd_fix_no_shutdown",
+      "source": "rc_bgp_admin_shutdown",
+      "target": "cmd_fix_no_shutdown",
+      "relationship": "mitigated_by",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_bgp_admin_shutdown",
+      "_to": "CausalNode/ver_bf_bgpSessionStatus",
+      "source": "rc_bgp_admin_shutdown",
+      "target": "ver_bf_bgpSessionStatus",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish bgpSessionStatus"
+    },
+    {
+      "_from": "CausalNode/ver_check_bgp_rib_table",
+      "_to": "CausalNode/cmd_show_ip_bgp_prefix",
+      "source": "ver_check_bgp_rib_table",
+      "target": "cmd_show_ip_bgp_prefix",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/ver_check_bgp_rib_table",
+      "_to": "CausalNode/cmd_show_ip_route_nexthop",
+      "source": "ver_check_bgp_rib_table",
+      "target": "cmd_show_ip_route_nexthop",
+      "relationship": "executes",
+      "description": ""
+    },
+    {
+      "_from": "CausalNode/rc_remote_as_mismatch",
+      "_to": "CausalNode/ver_bf_bgpPeerConfiguration",
+      "source": "rc_remote_as_mismatch",
+      "target": "ver_bf_bgpPeerConfiguration",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish bgpPeerConfiguration"
+    },
+    {
+      "_from": "CausalNode/rc_bgp_router_id_mismatch",
+      "_to": "CausalNode/ver_bf_bgpProcessConfiguration",
+      "source": "rc_bgp_router_id_mismatch",
+      "target": "ver_bf_bgpProcessConfiguration",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish bgpProcessConfiguration"
+    },
+    {
+      "_from": "CausalNode/rc_ospf_duplicate_router_id",
+      "_to": "CausalNode/ver_bf_ospfProcessConfiguration",
+      "source": "rc_ospf_duplicate_router_id",
+      "target": "ver_bf_ospfProcessConfiguration",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish ospfProcessConfiguration"
+    },
+    {
+      "_from": "CausalNode/rc_ospf_duplicate_router_id",
+      "_to": "CausalNode/ver_bf_ospfSessionCompatibility",
+      "source": "rc_ospf_duplicate_router_id",
+      "target": "ver_bf_ospfSessionCompatibility",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish ospfSessionCompatibility"
+    },
+    {
+      "_from": "CausalNode/rc_interface_shutdown",
+      "_to": "CausalNode/ver_bf_layer3Edges",
+      "source": "rc_interface_shutdown",
+      "target": "ver_bf_layer3Edges",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish layer3Edges"
+    },
+    {
+      "_from": "CausalNode/rc_interface_shutdown",
+      "_to": "CausalNode/ver_bf_resolveInterfaceSpecifier",
+      "source": "rc_interface_shutdown",
+      "target": "ver_bf_resolveInterfaceSpecifier",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish resolveInterfaceSpecifier"
+    },
+    {
+      "_from": "CausalNode/rc_interface_shutdown",
+      "_to": "CausalNode/ver_bf_resolveLocationSpecifier",
+      "source": "rc_interface_shutdown",
+      "target": "ver_bf_resolveLocationSpecifier",
+      "relationship": "verified_by",
+      "description": "Verified by Batfish resolveLocationSpecifier"
+    },
+    {
+      "_from": "CausalNode/symptom_isis_underlay_down",
+      "_to": "CausalNode/rc_isis_metric_style_mismatch",
+      "source": "symptom_isis_underlay_down",
+      "target": "rc_isis_metric_style_mismatch",
+      "relationship": "caused_by",
+      "description": "IS-IS Metric-Style TLV 불일치로 인한 라우트 도달 불가"
+    },
+    {
+      "_from": "CausalNode/symptom_isis_underlay_down",
+      "_to": "CausalNode/symptom_bgp_down",
+      "source": "symptom_isis_underlay_down",
+      "target": "symptom_bgp_down",
+      "relationship": "leads_to",
+      "description": "IS-IS 언더레이 결손 시 상위 BGP 세션 동반 단절"
+    },
+    {
+      "_from": "CausalNode/rc_isis_metric_style_mismatch",
+      "_to": "CausalNode/verif_isis_metric_style",
+      "source": "rc_isis_metric_style_mismatch",
+      "target": "verif_isis_metric_style",
+      "relationship": "verified_by",
+      "description": "IS-IS Metric Style 및 TLV 교환 상태 검증"
+    },
+    {
+      "_from": "CausalNode/rc_isis_metric_style_mismatch",
+      "_to": "CausalNode/remed_isis_metric_style",
+      "source": "rc_isis_metric_style_mismatch",
+      "target": "remed_isis_metric_style",
+      "relationship": "remediated_by",
+      "description": "metric-style wide 설정 통일 복구 조치"
+    },
+    {
+      "_from": "CausalNode/verif_isis_metric_style",
+      "_to": "CausalNode/cmd_show_run_isis",
+      "source": "verif_isis_metric_style",
+      "target": "cmd_show_run_isis",
+      "relationship": "executes_cli",
+      "description": "IS-IS 설정 CLI 검증"
+    },
+    {
+      "_from": "CausalNode/verif_isis_metric_style",
+      "_to": "CausalNode/cmd_show_isis_neighbors",
+      "source": "verif_isis_metric_style",
+      "target": "cmd_show_isis_neighbors",
+      "relationship": "executes_cli",
+      "description": "IS-IS 인접성 상태 검증"
+    },
+    {
+      "_from": "CausalNode/verif_isis_metric_style",
+      "_to": "CausalNode/cmd_show_ip_route_isis",
+      "source": "verif_isis_metric_style",
+      "target": "cmd_show_ip_route_isis",
+      "relationship": "executes_cli",
+      "description": "IS-IS 라우트 수신 여부 검증"
+    }
+  ],
+  "metadata": {
+    "format": "ArangoDB & Neo4j Multi-Model Causal Graph Seed",
+    "nodes_count": 242,
+    "edges_count": 297
+  }
+}

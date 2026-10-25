@@ -1,4 +1,4 @@
-export type NodeType = "Symptom" | "RootCause" | "Verification" | "Command";
+export type NodeType = "Symptom" | "RootCause" | "Verification" | "Command" | "Remediation";
 
 export interface GraphNode {
   id: string;
@@ -10,6 +10,8 @@ export interface GraphNode {
   y?: number;
   vx?: number;
   vy?: number;
+  fx?: number;
+  fy?: number;
 }
 
 export interface GraphLink {
@@ -22,6 +24,7 @@ export interface GraphLink {
 export interface GraphData {
   nodes: GraphNode[];
   links: GraphLink[];
+  layout?: string;
 }
 
 export interface TraceEvent {
@@ -31,7 +34,6 @@ export interface TraceEvent {
   message?: string;
   command?: string;
   host?: string;
-  mock_mode?: boolean;
   raw_output?: string;
   parsed_output?: any;
   remediation_lines?: string[];
@@ -39,6 +41,13 @@ export interface TraceEvent {
   start_node?: string;
   paths?: Array<{ path: string[]; steps: Array<{ id: string; label: string; type: string }> }>;
   matched_subgraph?: GraphData;
+  system_prompt?: string;
+  dynamic_context?: any;
+  llm_messages?: any[];
+  session_id?: string;
+  json_log_path?: string;
+  text_log_path?: string;
+  used_batfish_apis?: string[];
   timestamp: string;
 }
 
@@ -62,7 +71,6 @@ export interface DeviceConfig {
   username: string;
   password?: string;
   enable_password?: string;
-  mock_mode: boolean;
 }
 
 export interface ManagedDevice {
@@ -73,11 +81,11 @@ export interface ManagedDevice {
   username?: string;
   password?: string;
   enable_password?: string;
-  mock_mode?: boolean;
   description?: string;
 }
 
 export interface AppConfig {
   llm: LLMConfig;
   device: DeviceConfig;
+  debug_mode?: boolean;
 }

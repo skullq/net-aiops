@@ -20,7 +20,7 @@ import {
 import { I18nProvider, useI18n } from "@/i18n";
 
 function NetAIOpsStudio() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [activeTab, setActiveTab] = useState<ActiveTab>("diagnostics");
 
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
@@ -32,6 +32,9 @@ function NetAIOpsStudio() {
 
   // Managed Devices State (from devices.env / devices.json)
   const [devices, setDevices] = useState<ManagedDevice[]>([]);
+
+  // Debug Log Mode State (default ON: true)
+  const [debugMode, setDebugMode] = useState<boolean>(true);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [traceEvents, setTraceEvents] = useState<TraceEvent[]>([]);
@@ -61,6 +64,9 @@ function NetAIOpsStudio() {
       if (res.ok) {
         const data = await res.json();
         setConfig(data);
+        if (data.debug_mode !== undefined) {
+          setDebugMode(Boolean(data.debug_mode));
+        }
       }
     } catch (err) {
       console.error("Failed to fetch config:", err);
@@ -208,7 +214,7 @@ function NetAIOpsStudio() {
     }
   };
 
-  // 4. Settings Save Handler
+  // 4. Settings Save Handler & Debug Mode Toggle
   const handleSaveConfig = async (newConfig: AppConfig) => {
     try {
       const res = await fetch("/api/config", {
@@ -218,9 +224,24 @@ function NetAIOpsStudio() {
       });
       if (res.ok) {
         setConfig(newConfig);
+        if (newConfig.debug_mode !== undefined) {
+          setDebugMode(Boolean(newConfig.debug_mode));
+        }
       }
     } catch (err) {
       console.error("Failed to update config:", err);
+    }
+  };
+
+  const handleToggleDebugMode = async () => {
+    const nextMode = !debugMode;
+    setDebugMode(nextMode);
+    if (config) {
+      const updatedConfig: AppConfig = {
+        ...config,
+        debug_mode: nextMode,
+      };
+      await handleSaveConfig(updatedConfig);
     }
   };
 
@@ -253,6 +274,8 @@ function NetAIOpsStudio() {
           history: messages.slice(-4).map((m) => ({ role: m.role, content: m.content })),
           llm_config: config?.llm,
           device_config: config?.device,
+          language: language,
+          debug_mode: debugMode,
         }),
       });
 
@@ -263,6 +286,7 @@ function NetAIOpsStudio() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder("utf-8");
       let buffer = "";
+      let currentEvent = "";
 
       while (true) {
         const { value, done } = await reader.read();
@@ -271,8 +295,6 @@ function NetAIOpsStudio() {
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
         buffer = lines.pop() || "";
-
-        let currentEvent = "";
 
         for (const line of lines) {
           const trimmed = line.trim();
@@ -301,7 +323,7 @@ function NetAIOpsStudio() {
                 }
               } else if (currentEvent === "mcp_result") {
                 setTraceEvents((prev) => [...prev, parsed]);
-              } else if (currentEvent === "llm_token") {
+              } else if (currentEvent === "llm_token" || Boolean(parsed.token)) {
                 const token = parsed.token || "";
                 setMessages((prev) =>
                   prev.map((msg) =>
@@ -310,6 +332,21 @@ function NetAIOpsStudio() {
                       : msg
                   )
                 );
+              } else if (currentEvent === "error" || parsed.error) {
+                const errMsg = parsed.error || "진단 중 오류가 발생했습니다.";
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? {
+                          ...msg,
+                          content:
+                            (msg.content ? msg.content + "\n\n" : "") +
+                            `⚠️ **진단 오류 발생**: ${errMsg}`,
+                        }
+                      : msg
+                  )
+                );
+                setIsStreaming(false);
               } else if (currentEvent === "complete") {
                 setIsStreaming(false);
               }
@@ -351,6 +388,8 @@ function NetAIOpsStudio() {
         deviceCount={devices.length}
         onResetGraph={handleResetGraph}
         isResetting={isResetting}
+        debugMode={debugMode}
+        onToggleDebugMode={handleToggleDebugMode}
       />
 
       {/* 2. Main Viewport switching by Active Tab */}

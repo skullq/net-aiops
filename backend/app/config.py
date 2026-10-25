@@ -27,7 +27,7 @@ def str_to_bool(val: Optional[str], default: bool = True) -> bool:
 
 class ServerSettings(BaseModel):
     host: str = Field(default_factory=lambda: os.getenv("BACKEND_HOST", "0.0.0.0"))
-    port: int = Field(default_factory=lambda: int(os.getenv("BACKEND_PORT", "8000")))
+    port: int = Field(default_factory=lambda: int(os.getenv("BACKEND_PORT", "3001")))
     cors_origins: List[str] = Field(
         default_factory=lambda: [
             origin.strip()
@@ -64,9 +64,9 @@ class EnvironmentSettings(BaseModel):
         )
     )
 
-    # Cisco IOS-XE Device Settings
+    # Cisco IOS-XE Device Settings (Default to Lab Core Router r1)
     cisco_host: str = Field(
-        default_factory=lambda: os.getenv("CISCO_HOST", "192.168.10.1")
+        default_factory=lambda: os.getenv("CISCO_HOST", "192.168.100.11")
     )
     cisco_port: int = Field(
         default_factory=lambda: int(os.getenv("CISCO_PORT", "22"))
@@ -75,13 +75,13 @@ class EnvironmentSettings(BaseModel):
         default_factory=lambda: os.getenv("CISCO_USERNAME", "admin")
     )
     cisco_password: str = Field(
-        default_factory=lambda: os.getenv("CISCO_PASSWORD", "cisco_password")
+        default_factory=lambda: os.getenv("CISCO_PASSWORD", "admin")
     )
     cisco_enable_password: str = Field(
-        default_factory=lambda: os.getenv("CISCO_ENABLE_PASSWORD", "")
+        default_factory=lambda: os.getenv("CISCO_ENABLE_PASSWORD", "admin")
     )
-    cisco_mock_mode: bool = Field(
-        default_factory=lambda: str_to_bool(os.getenv("CISCO_MOCK_MODE", "true"), True)
+    debug_mode: bool = Field(
+        default_factory=lambda: str_to_bool(os.getenv("DEBUG_MODE", "true"), default=True)
     )
 
     def to_app_config(self) -> AppConfig:
@@ -98,8 +98,8 @@ class EnvironmentSettings(BaseModel):
                 username=self.cisco_username,
                 password=self.cisco_password,
                 enable_password=self.cisco_enable_password,
-                mock_mode=self.cisco_mock_mode,
             ),
+            debug_mode=self.debug_mode,
         )
 
 

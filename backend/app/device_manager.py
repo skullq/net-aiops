@@ -20,18 +20,13 @@ class ManagedDevice(BaseModel):
     username: Optional[str] = None
     password: Optional[str] = None
     enable_password: Optional[str] = None
-    mock_mode: Optional[bool] = None
     description: Optional[str] = ""
 
 
 class DeviceManager:
     """Cisco IOS-XE 복수 장비 인벤토리 관리자.
 
-    규칙:
-    1. 기본 접속정보(devices.env)를 기본값으로 유지합니다.
-    2. 개별 장비에 설정된 정보(Port, Username, Password, Mock 여부)가 있다면 개별 설정이 최우선합니다.
-    3. 모든 장비는 언제든 동시에 진단 및 조치 대상이 될 수 있는 상시 접근 가능 상태입니다.
-    4. 장비 추가, 삭제, 설정 변경(수정)을 지원합니다.
+    100% 라이브 실측 장비(r1~r5: 192.168.100.11~15) 연결을 보장합니다.
     """
 
     def __init__(self):
@@ -44,20 +39,15 @@ class DeviceManager:
                 "port": 22,
                 "username": "admin",
                 "password": "admin",
-                "enable_password": "admin",
-                "mock_mode": False
+                "enable_password": "admin"
             }
 
         vals = dotenv_values(DEVICES_ENV_PATH)
-        mock_val = vals.get("DEFAULT_MOCK_MODE", "false")
-        mock_mode = mock_val.lower() in ("true", "1", "yes")
-
         return {
             "port": int(vals.get("DEFAULT_SSH_PORT", 22)),
             "username": vals.get("DEFAULT_SSH_USERNAME", "admin"),
             "password": vals.get("DEFAULT_SSH_PASSWORD", "admin"),
-            "enable_password": vals.get("DEFAULT_SSH_ENABLE_PASSWORD", "admin"),
-            "mock_mode": mock_mode
+            "enable_password": vals.get("DEFAULT_SSH_ENABLE_PASSWORD", "admin")
         }
 
     def _ensure_storage(self) -> None:
@@ -72,7 +62,6 @@ class DeviceManager:
                     "username": "admin",
                     "password": "admin",
                     "enable_password": "admin",
-                    "mock_mode": False,
                     "description": f"Lab Router r{i} (192.168.100.{10 + i})"
                 }
                 for i in range(1, 6)
@@ -102,7 +91,6 @@ class DeviceManager:
             username=dev.username if dev.username else defaults["username"],
             password=dev.password if dev.password is not None else defaults["password"],
             enable_password=dev.enable_password if dev.enable_password is not None else defaults["enable_password"],
-            mock_mode=dev.mock_mode if dev.mock_mode is not None else defaults["mock_mode"],
             description=dev.description or ""
         )
 
@@ -137,12 +125,13 @@ class DeviceManager:
         return resolved
 
     def update_device(self, device_id: str, data: Dict[str, Any]) -> Optional[ManagedDevice]:
-        """장비 설정 변경 (이름, IP, 포트, 인증정보, Mock여부 등)"""
+        """장비 설정 변경 (이름, IP, 포트, 인증정보 등)"""
         devices = self._read_devices_from_json()
         for i, d in enumerate(devices):
             if d["id"] == device_id:
                 d.update(data)
-                # 업데이트된 객체에 대해 개별 설정 우선 상속 처리
+                # mock_mode 잔여 키가 있다면 제거
+                d.pop("mock_mode", None)
                 updated_raw = ManagedDevice(**d)
                 resolved = self.resolve_device(updated_raw)
                 devices[i] = resolved.model_dump()

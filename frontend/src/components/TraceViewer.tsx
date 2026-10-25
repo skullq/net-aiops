@@ -47,6 +47,12 @@ export const TraceViewer: React.FC<TraceViewerProps> = ({
   };
 
   const getStepIcon = (step: string) => {
+    if (step.includes("session")) {
+      return <Database className="w-3.5 h-3.5 text-emerald-400" />;
+    }
+    if (step.includes("llm_context") || step.includes("prompt")) {
+      return <Sparkles className="w-3.5 h-3.5 text-amber-300" />;
+    }
     if (step.includes("graph")) {
       return <Database className="w-3.5 h-3.5 text-purple-400" />;
     }
@@ -61,6 +67,8 @@ export const TraceViewer: React.FC<TraceViewerProps> = ({
     }
     return <Activity className="w-3.5 h-3.5 text-blue-400" />;
   };
+
+  const t0 = traceEvents.length > 0 ? new Date(traceEvents[0].timestamp).getTime() : 0;
 
   return (
     <div className="relative w-full h-full bg-slate-950 flex flex-col select-text overflow-hidden">
@@ -107,7 +115,24 @@ export const TraceViewer: React.FC<TraceViewerProps> = ({
                 Boolean(event.parsed_output) ||
                 Boolean(event.raw_output) ||
                 Boolean(event.remediation_lines) ||
-                Boolean(event.paths);
+                Boolean(event.paths) ||
+                Boolean(event.used_batfish_apis && event.used_batfish_apis.length > 0) ||
+                Boolean(event.system_prompt) ||
+                Boolean(event.dynamic_context) ||
+                Boolean(event.session_id) ||
+                Boolean(event.llm_messages);
+
+              const currTime = new Date(event.timestamp).getTime();
+              const prevTime = idx > 0 ? new Date(traceEvents[idx - 1].timestamp).getTime() : currTime;
+
+              const elapsedSec =
+                !isNaN(currTime) && !isNaN(t0) && currTime >= t0
+                  ? ((currTime - t0) / 1000).toFixed(1)
+                  : "0.0";
+              const stepDurationSec =
+                !isNaN(currTime) && !isNaN(prevTime) && currTime >= prevTime
+                  ? ((currTime - prevTime) / 1000).toFixed(1)
+                  : "0.0";
 
               return (
                 <div key={idx} className="relative pl-6 group">
@@ -125,58 +150,112 @@ export const TraceViewer: React.FC<TraceViewerProps> = ({
                         hasPayload ? "cursor-pointer hover:bg-slate-850" : ""
                       }`}
                     >
-                      <div className="space-y-1">
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        {/* 1. 검증 제목 */}
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-slate-100">
+                          <span className="text-xs font-semibold text-slate-100 break-words">
                             {event.title}
                           </span>
+                        </div>
+
+                        {/* 2. 검증제목 바로 밑 한줄: 성공 배지 + 소요시간 + 타임스탬프 (명령어 제거) */}
+                        <div className="flex items-center gap-2 flex-wrap text-[10px] font-mono">
                           {event.status === "success" && (
-                            <span className="text-[10px] text-emerald-400 bg-emerald-950/70 border border-emerald-800/40 px-1.5 py-0.2 rounded font-medium">
+                            <span className="text-emerald-400 bg-emerald-950/70 border border-emerald-800/40 px-1.5 py-0.5 rounded font-medium">
                               {t.trace.successBadge}
                             </span>
                           )}
                           {event.status === "error" && (
-                            <span className="text-[10px] text-rose-400 bg-rose-950/70 border border-rose-800/40 px-1.5 py-0.2 rounded font-medium">
+                            <span className="text-rose-400 bg-rose-950/70 border border-rose-800/40 px-1.5 py-0.5 rounded font-medium">
                               {t.trace.failedBadge}
                             </span>
                           )}
-                          {event.command && (
-                            <code className="text-[10px] font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-800/40 px-1.5 py-0.2 rounded">
-                              {event.command}
-                            </code>
+                          {event.status === "in_progress" && (
+                            <span className="text-cyan-400 bg-cyan-950/70 border border-cyan-800/40 px-1.5 py-0.5 rounded font-medium animate-pulse">
+                              진행중
+                            </span>
                           )}
+                          <span className="inline-flex items-center gap-1 font-semibold text-cyan-300 bg-cyan-950/70 border border-cyan-800/50 px-1.5 py-0.5 rounded shadow-sm">
+                            <Clock className="w-2.5 h-2.5 text-cyan-400" />
+                            {idx === 0 ? (
+                              <span>+{elapsedSec}s ({t.trace.startBadge})</span>
+                            ) : (
+                              <span>+{elapsedSec}s ({stepDurationSec}s {t.trace.tookTime})</span>
+                            )}
+                          </span>
+                          <span className="text-slate-500">
+                            {new Date(event.timestamp).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            })}
+                          </span>
                         </div>
 
+                        {/* 3. 설명 메시지 */}
                         {event.message && (
-                          <p className="text-[11px] text-slate-300 leading-relaxed">
+                          <p className="text-[11px] text-slate-300 leading-relaxed pt-0.5">
                             {event.message}
                           </p>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-slate-500 text-[10px] shrink-0 font-mono">
-                        <span>
-                          {new Date(event.timestamp).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                          })}
-                        </span>
-                        {hasPayload && (
-                          <div className="text-slate-400">
-                            {isExpanded ? (
-                              <ChevronDown className="w-3.5 h-3.5" />
-                            ) : (
-                              <ChevronRight className="w-3.5 h-3.5" />
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      {/* Header Right: Expand Chevron Arrow Only */}
+                      {hasPayload && (
+                        <div className="text-slate-400 pl-1 pt-0.5 shrink-0">
+                          {isExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-slate-400 hover:text-slate-200" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-slate-400 hover:text-slate-200" />
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Expandable Payload Body */}
                     {hasPayload && isExpanded && (
                       <div className="border-t border-slate-800/80 bg-slate-950/60 p-3 space-y-2.5 text-xs">
+                        {/* Batfish Formal Question APIs Used */}
+                        {event.used_batfish_apis && event.used_batfish_apis.length > 0 && (
+                          <div className="space-y-1.5 p-2.5 rounded-lg bg-blue-950/40 border border-blue-800/50">
+                            <span className="text-[10px] font-semibold uppercase text-blue-300 tracking-wider flex items-center gap-1">
+                              <Code2 className="w-3.5 h-3.5 text-cyan-400" />
+                              Batfish 정형 질의 실행 API (Formal Question APIs)
+                            </span>
+                            <div className="flex flex-wrap gap-1.5 font-mono text-[10.5px] pt-1">
+                              {event.used_batfish_apis.map((api, aIdx) => (
+                                <span
+                                  key={aIdx}
+                                  className="px-2 py-0.5 rounded bg-blue-900/60 border border-blue-700/60 text-cyan-200 shadow-sm"
+                                >
+                                  {api}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {/* 0. Session Troubleshooting Record */}
+                        {event.session_id && (
+                          <div className="space-y-1.5 p-2.5 rounded bg-emerald-950/40 border border-emerald-800/50">
+                            <div className="flex items-center justify-between text-[11px] text-emerald-300 font-semibold">
+                              <span className="flex items-center gap-1.5">
+                                🛠️ Session ID: <code className="font-mono bg-emerald-900/60 px-1.5 py-0.5 rounded text-emerald-200">{event.session_id}</code>
+                              </span>
+                              <button
+                                onClick={() => handleCopy(event.session_id || "", `sess_${idx}`)}
+                                className="flex items-center gap-1 text-[10px] text-emerald-400 hover:text-white transition"
+                              >
+                                {copiedKey === `sess_${idx}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                                <span>{copiedKey === `sess_${idx}` ? t.chat.copied : t.chat.copy}</span>
+                              </button>
+                            </div>
+                            <div className="text-[10px] font-mono text-emerald-200/90 space-y-1 pt-1">
+                              <div>• JSON Data: <code className="bg-slate-900 px-1.5 py-0.5 rounded text-cyan-300">{event.json_log_path}</code></div>
+                              <div>• Text Trace: <code className="bg-slate-900 px-1.5 py-0.5 rounded text-amber-300">{event.text_log_path}</code></div>
+                            </div>
+                          </div>
+                        )}
+
                         {/* 1. GraphDB Traversal Path Display */}
                         {event.paths && event.paths.length > 0 && (
                           <div className="space-y-1.5">
@@ -291,6 +370,76 @@ export const TraceViewer: React.FC<TraceViewerProps> = ({
                             <pre className="p-2.5 rounded bg-emerald-950/20 border border-emerald-800/50 text-[11px] font-mono text-emerald-300 overflow-x-auto leading-relaxed">
                               {event.remediation_text || event.remediation_lines.join("\n")}
                             </pre>
+                          </div>
+                        )}
+
+                        {/* 5. LLM Prompt & Injected Dynamic Context Display */}
+                        {(event.system_prompt || event.dynamic_context || event.llm_messages) && (
+                          <div className="space-y-2.5 rounded-lg bg-amber-950/25 border border-amber-800/50 p-3">
+                            <div className="flex items-center justify-between text-[10px] text-amber-300 font-semibold uppercase tracking-wider">
+                              <span className="flex items-center gap-1.5">
+                                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                                {t.trace.llmPromptPayload}
+                              </span>
+                              {event.llm_messages && (
+                                <button
+                                  onClick={() =>
+                                    handleCopy(
+                                      JSON.stringify(event.llm_messages, null, 2),
+                                      `llm_msg_${idx}`
+                                    )
+                                  }
+                                  className="flex items-center gap-1 text-[10px] text-amber-400/80 hover:text-amber-200 transition"
+                                >
+                                  {copiedKey === `llm_msg_${idx}` ? (
+                                    <Check className="w-3 h-3 text-emerald-400" />
+                                  ) : (
+                                    <Copy className="w-3 h-3" />
+                                  )}
+                                  <span>{copiedKey === `llm_msg_${idx}` ? t.chat.copied : t.chat.copy}</span>
+                                </button>
+                              )}
+                            </div>
+
+                            {/* System Prompt View */}
+                            {event.system_prompt && (
+                              <div className="space-y-1">
+                                <span className="text-[10px] font-semibold text-amber-400/90 block">
+                                  {t.trace.systemPromptTitle}
+                                </span>
+                                <pre className="p-2 rounded bg-slate-950/80 border border-amber-900/40 text-[11px] font-mono text-amber-200 leading-relaxed whitespace-pre-wrap">
+                                  {event.system_prompt}
+                                </pre>
+                              </div>
+                            )}
+
+                            {/* Dynamic Context View */}
+                            {event.dynamic_context && (
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-[10px] text-amber-400/90 font-semibold">
+                                  <span>{t.trace.dynamicContextTitle}</span>
+                                  <button
+                                    onClick={() =>
+                                      handleCopy(
+                                        JSON.stringify(event.dynamic_context, null, 2),
+                                        `dyn_${idx}`
+                                      )
+                                    }
+                                    className="flex items-center gap-1 text-slate-400 hover:text-white transition"
+                                  >
+                                    {copiedKey === `dyn_${idx}` ? (
+                                      <Check className="w-3 h-3 text-emerald-400" />
+                                    ) : (
+                                      <Copy className="w-3 h-3" />
+                                    )}
+                                    <span>{copiedKey === `dyn_${idx}` ? t.chat.copied : t.chat.copy}</span>
+                                  </button>
+                                </div>
+                                <pre className="p-2.5 rounded bg-slate-950 border border-slate-800 text-[10px] font-mono text-amber-100 overflow-x-auto max-h-52 leading-relaxed">
+                                  {JSON.stringify(event.dynamic_context, null, 2)}
+                                </pre>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

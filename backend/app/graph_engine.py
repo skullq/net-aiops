@@ -1,4 +1,7 @@
+import json
 import logging
+import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 import networkx as nx
 
@@ -7,244 +10,399 @@ from app.models import EdgeModel, NodeModel, NodeType
 logger = logging.getLogger(__name__)
 
 
-class CausalGraphEngine:
-    """NetworkX DiGraph 기반 인과관계(Causal Graph) 분석 및 관리 엔진.
+class BaseGraphAdapter:
+    """미래 Neo4j 및 ArangoDB 이전을 위한 추상 그래프 저장소 인터페이스"""
+    def execute_query(self, query: str) -> List[Dict[str, Any]]:
+        raise NotImplementedError
+    
+    def sync_from_storage(self) -> None:
+        raise NotImplementedError
 
-    노드 타입:
-    - Symptom: 네트워크 이상 증상 (예: BGP Down, 패킷 드롭)
-    - RootCause: 근본 원인 (예: MTU 불일치, 비밀번호 오류)
-    - Verification: 원인 확인 및 검증 절차 (예: 상태 점검 단계)
-    - Command: 진단/확인 및 복구에 필요한 구체적 CLI 명령어
+    def export_data(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
+
+class UniversalCausalGraphEngine:
+    """탈중앙화 및 Neo4j / ArangoDB 전환 호환 인과 그래프 엔진.
+    
+    특징:
+    1. 데이터 저장소 분리: `causal_graph.json` (ArangoDB Document/Edge 컬렉션 호환) 및 `causal_graph.cypher` (Neo4j openCypher 호환) 동시 동기화.
+    2. Zero-Lock 인메모리 NetworkX DiGraph 기반 고속 탐색 및 실시간 시각화 API 제공.
+    3. Neo4j Bolt 드라이버 및 ArangoDB AQL 연동을 위한 어댑터 확장성 내장.
+    4. OSI 7 Layer (Bottom-Up) 계층별 검증 명령어 자동 정렬 기능 유지.
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        json_file_path: Optional[str] = None,
+        cypher_file_path: Optional[str] = None
+    ):
         self.graph = nx.DiGraph()
+        self.json_file_path = json_file_path or str(Path(__file__).parent / "causal_graph.json")
+        self.cypher_file_path = cypher_file_path or str(Path(__file__).parent / "causal_graph.cypher")
         self.reset_to_default()
 
     def reset_to_default(self) -> None:
-        """기본 Cisco IOS-XE 장애 진단 인과 그래프 데이터로 초기화합니다."""
-        self.graph.clear()
+        """분리된 데이터 파일(JSON 및 Cypher)로부터 그래프 데이터를 로드하고 정규화/인과연결을 적용합니다."""
+        if Path(self.json_file_path).exists():
+            self._load_from_json(self.json_file_path)
+        elif Path(self.cypher_file_path).exists():
+            self._load_from_cypher(self.cypher_file_path)
+        else:
+            logger.warning("No seed graph files found. Starting with empty graph.")
 
-        # 기본 노드 정의
-        default_nodes = [
-            # 1. BGP Down 시나리오
-            NodeModel(
-                id="symptom_bgp_down",
-                label="BGP Neighbor Down",
-                type=NodeType.SYMPTOM,
-                description="BGP 피어 연결이 끊어지거나 Idle/Active 상태로 머무름",
-                details={"severity": "CRITICAL", "category": "Routing"}
-            ),
-            NodeModel(
-                id="rc_bgp_auth_mismatch",
-                label="BGP MD5 Password Mismatch",
-                type=NodeType.ROOT_CAUSE,
-                description="BGP 피어 간 MD5 패스워드 불일치로 인한 TCP 세션 수립 실패",
-                details={"protocol": "BGP", "layer": "L4-L7"}
-            ),
-            NodeModel(
-                id="rc_bgp_mtu_mismatch",
-                label="Interface MTU Mismatch",
-                type=NodeType.ROOT_CAUSE,
-                description="피어 인터페이스 간 MTU 크기 불일치로 큰 패킷 전송 시 세션 리셋",
-                details={"protocol": "IP/Ethernet", "layer": "L2-L3"}
-            ),
-            NodeModel(
-                id="rc_interface_flapping",
-                label="Physical Link Flapping",
-                type=NodeType.ROOT_CAUSE,
-                description="물리 인터페이스 불안정 또는 CRC 에러로 인한 링크 플래핑",
-                details={"protocol": "Ethernet", "layer": "L1-L2"}
-            ),
-            NodeModel(
-                id="ver_check_bgp_summary",
-                label="Verify BGP Summary",
-                type=NodeType.VERIFICATION,
-                description="BGP 네이버 상태 및 접두사(Prefix) 수신 상태 확인",
-                details={"method": "CLI Verification"}
-            ),
-            NodeModel(
-                id="cmd_show_ip_bgp_summary",
-                label="show ip bgp summary",
-                type=NodeType.COMMAND,
-                description="BGP 요약 정보 확인",
-                details={"command": "show ip bgp summary", "expected_state": "Established"}
-            ),
-            NodeModel(
-                id="ver_check_bgp_neighbors",
-                label="Inspect BGP Neighbor Log",
-                type=NodeType.VERIFICATION,
-                description="BGP 네이버 상세 에러 코드(Notification) 및 재연결 횟수 조사",
-                details={"method": "Detailed CLI Log Check"}
-            ),
-            NodeModel(
-                id="cmd_show_ip_bgp_neighbors",
-                label="show ip bgp neighbors",
-                type=NodeType.COMMAND,
-                description="BGP 네이버 상세 정보 및 통계 확인",
-                details={"command": "show ip bgp neighbors"}
-            ),
-            NodeModel(
-                id="ver_check_interface_status",
-                label="Verify Interface Status",
-                type=NodeType.VERIFICATION,
-                description="물리 인터페이스 링크 및 프로토콜 상태(Up/Up) 확인",
-                details={"method": "Interface State Inspection"}
-            ),
-            NodeModel(
-                id="cmd_show_ip_int_brief",
-                label="show ip interface brief",
-                type=NodeType.COMMAND,
-                description="전체 인터페이스 IP 및 Line Status 확인",
-                details={"command": "show ip interface brief"}
-            ),
-            NodeModel(
-                id="cmd_fix_bgp_auth",
-                label="Remediation: Fix BGP Auth",
-                type=NodeType.COMMAND,
-                description="BGP 피어 MD5 패스워드 재설정 및 동기화",
-                details={"type": "Remediation", "action": "hier_config_patch"}
-            ),
-            NodeModel(
-                id="cmd_fix_interface_mtu",
-                label="Remediation: Set MTU 1500",
-                type=NodeType.COMMAND,
-                description="인터페이스 MTU를 표준 1500으로 복구",
-                details={"type": "Remediation", "action": "hier_config_patch"}
-            ),
+        # 중복 명령어 노드 통합 및 고립 인과 엣지 자동 복구 파이프라인 가동
+        self.canonicalize_and_repair_graph(save=True)
 
-            # 2. OSPF ExStart 시나리오
-            NodeModel(
-                id="symptom_ospf_exstart",
-                label="OSPF Stuck in ExStart",
-                type=NodeType.SYMPTOM,
-                description="OSPF 네이버 상태가 DBD 교환 단계(ExStart/Exchange)에 고착됨",
-                details={"severity": "HIGH", "category": "Routing"}
-            ),
-            NodeModel(
-                id="rc_ospf_mtu_mismatch",
-                label="OSPF MTU Mismatch",
-                type=NodeType.ROOT_CAUSE,
-                description="양단 인터페이스 MTU가 일치하지 않아 DBD 수신 실패",
-                details={"protocol": "OSPF", "layer": "L3"}
-            ),
-            NodeModel(
-                id="ver_check_ospf_neighbor",
-                label="Verify OSPF Neighbor",
-                type=NodeType.VERIFICATION,
-                description="OSPF 인접 관계 상태 및 데드 타이머 점검",
-                details={"method": "OSPF CLI Verification"}
-            ),
-            NodeModel(
-                id="cmd_show_ip_ospf_neighbor",
-                label="show ip ospf neighbor",
-                type=NodeType.COMMAND,
-                description="OSPF 네이버 상태 및 인터페이스 확인",
-                details={"command": "show ip ospf neighbor"}
-            ),
-            NodeModel(
-                id="cmd_fix_ospf_mtu",
-                label="Remediation: OSPF MTU Ignore",
-                type=NodeType.COMMAND,
-                description="해당 인터페이스에 'ip ospf mtu-ignore' 설정 또는 MTU 일치화",
-                details={"type": "Remediation", "action": "cli_remediation"}
-            ),
+    def canonicalize_and_repair_graph(self, save: bool = True) -> Dict[str, Any]:
+        """모든 GraphDB 생성/로드 시 자동으로 중복 명령어를 단일 허브로 통합하고 고립 인과 링크를 복구합니다.
+        
+        규칙:
+        1. 동일한 CLI 명령어(label 및 command)를 가진 복수 Command 노드를 단일 대표(Canonical) 노드로 수렴.
+        2. 중복 노드로 향하던 모든 검증(Verification) 엣지의 타겟을 대표 노드로 재연결.
+        3. 고립된 컴포넌트(BGP Active, Flapping, OSPF)를 메인 인과 체인에 결속.
+        """
+        # 1. 중복 명령어 매핑 사전 (중복 노드 ID -> 대표 Canonical 노드 ID)
+        canonical_map: Dict[str, str] = {
+            # show running-config 통합 -> cmd_show_running_config
+            "cmd_pair_initIssues": "cmd_show_running_config",
+            "cmd_pair_parseWarning": "cmd_show_running_config",
+            "cmd_pair_undefinedReferences": "cmd_show_running_config",
+            "cmd_pair_unusedStructures": "cmd_show_running_config",
+            "cmd_pair_viConversionWarning": "cmd_show_running_config",
+            "cmd_pair_namedStructures": "cmd_show_running_config",
+            "cmd_show_run_int": "cmd_show_running_config",
 
-            # 3. Interface CRC Errors 시나리오
-            NodeModel(
-                id="symptom_input_errors",
-                label="Interface Input/CRC Errors",
-                type=NodeType.SYMPTOM,
-                description="인터페이스 입력 에러 및 CRC 카운터 급증으로 패킷 드롭 발생",
-                details={"severity": "MEDIUM", "category": "Hardware/L2"}
-            ),
-            NodeModel(
-                id="rc_duplex_mismatch",
-                label="Duplex Mismatch (Half/Full)",
-                type=NodeType.ROOT_CAUSE,
-                description="대향 장비와의 Duplex 설정 불일치로 인한 Late Collision",
-                details={"protocol": "Ethernet", "layer": "L2"}
-            ),
-            NodeModel(
-                id="ver_check_interface_counters",
-                label="Inspect Interface Counters",
-                type=NodeType.VERIFICATION,
-                description="에러 카운터, Collision 및 Duplex 상태 점검",
-                details={"method": "Detailed Interface Stats"}
-            ),
-            NodeModel(
-                id="cmd_show_interfaces",
-                label="show interfaces",
-                type=NodeType.COMMAND,
-                description="인터페이스 상세 카운터 및 Duplex 모드 점검",
-                details={"command": "show interfaces GigabitEthernet1"}
-            ),
-            NodeModel(
-                id="cmd_fix_duplex_auto",
-                label="Remediation: Auto Duplex/Speed",
-                type=NodeType.COMMAND,
-                description="인터페이스를 speed auto 및 duplex auto 로 복구",
-                details={"type": "Remediation", "action": "hier_config_patch"}
+            # show ip interface brief 통합 -> cmd_show_ip_int_brief
+            "cmd_pair_layer3Edges": "cmd_show_ip_int_brief",
+            "cmd_pair_ipOwners": "cmd_show_ip_int_brief",
+            "cmd_pair_resolveInterfaceSpecifier": "cmd_show_ip_int_brief",
+            "cmd_pair_resolveLocationSpecifier": "cmd_show_ip_int_brief",
+            "cmd_pair_resolveIpsOfLocationSpecifier": "cmd_show_ip_int_brief",
+
+            # show ip ospf neighbor 통합 -> cmd_show_ip_ospf_neighbor
+            "cmd_pair_ospfEdges": "cmd_show_ip_ospf_neighbor",
+            "cmd_pair_ospfSessionCompatibility": "cmd_show_ip_ospf_neighbor",
+
+            # show ip bgp summary 통합 -> cmd_show_ip_bgp_summary
+            "cmd_pair_bgpEdges": "cmd_show_ip_bgp_summary",
+            "cmd_pair_bgpSessionStatus": "cmd_show_ip_bgp_summary",
+
+            # show ip bgp neighbors 통합 -> cmd_show_ip_bgp_neighbors
+            "cmd_pair_bgpPeerConfiguration": "cmd_show_ip_bgp_neighbors",
+            "cmd_pair_bgpSessionCompatibility": "cmd_show_ip_bgp_neighbors",
+
+            # show route-map 통합 -> cmd_show_route_map
+            "cmd_pair_searchRoutePolicies": "cmd_show_route_map",
+            "cmd_pair_testRoutePolicies": "cmd_show_route_map",
+
+            # show archive config differences 통합 -> cmd_show_archive_config_diff
+            "cmd_pair_compareFilters": "cmd_pair_differentialReachability",
+            "cmd_pair_compareRoutePolicies": "cmd_pair_differentialReachability",
+
+            # show ip access-lists 통합 -> cmd_pair_filterLineReachability
+            "cmd_pair_searchFilters": "cmd_pair_filterLineReachability",
+            "cmd_pair_resolveFilterSpecifier": "cmd_pair_filterLineReachability",
+
+            # show running-config | section router bgp 통합 -> cmd_show_run_bgp
+            "cmd_pair_bgpProcessConfiguration": "cmd_show_run_bgp",
+
+            # show ip bgp 통합 -> cmd_show_ip_bgp_prefix
+            "cmd_pair_bgpRib": "cmd_show_ip_bgp_prefix",
+
+            # show isis neighbors 통합 -> cmd_show_isis_neighbors
+            "cmd_pair_isisEdges": "cmd_show_isis_neighbors",
+
+            # show ip ospf 통합 -> cmd_pair_ospfAreaConfiguration
+            "cmd_pair_ospfProcessConfiguration": "cmd_pair_ospfAreaConfiguration",
+
+            # show ip route 통합 -> cmd_pair_routes
+            "cmd_pair_resolveIpSpecifier": "cmd_pair_routes",
+
+            # traceroute 통합 -> cmd_pair_traceroute
+            "cmd_pair_bidirectionalTraceroute": "cmd_pair_traceroute",
+
+            # show cdp neighbors detail 통합 -> cmd_pair_edges
+            "cmd_pair_userProvidedLayer1Edges": "cmd_pair_edges",
+
+            # show version 통합 -> cmd_pair_nodeProperties
+            "cmd_pair_viConversionStatus": "cmd_pair_nodeProperties",
+
+            # help 통합 -> cmd_pair_list
+            "cmd_pair_list_tags": "cmd_pair_list",
+        }
+
+        # 대표 노드 존재 보장
+        if not self.graph.has_node("cmd_show_running_config"):
+            self.graph.add_node(
+                "cmd_show_running_config",
+                label="show running-config",
+                type="Command",
+                description="전체 Cisco IOS-XE 활성 러닝 설정 확인",
+                details={"command": "show running-config", "layer": "Layer 7 (Application / Configuration)"}
             )
+
+        merged_nodes_count = 0
+        redirected_edges_count = 0
+
+        # 엣지 재연결 (중복 노드로 향하는 엣지를 대표 노드로 변경)
+        edges_to_remove = []
+        edges_to_add = []
+
+        for u, v, d in self.graph.edges(data=True):
+            target_canonical = canonical_map.get(v)
+            if target_canonical:
+                edges_to_remove.append((u, v))
+                edges_to_add.append((u, target_canonical, d))
+
+        for u, v in edges_to_remove:
+            self.graph.remove_edge(u, v)
+
+        for u, v, d in edges_to_add:
+            if not self.graph.has_edge(u, v):
+                self.graph.add_edge(u, v, **d)
+                redirected_edges_count += 1
+
+        # 중복 노드 삭제
+        for dup_id in canonical_map.keys():
+            if self.graph.has_node(dup_id):
+                self.graph.remove_node(dup_id)
+                merged_nodes_count += 1
+
+        # IS-IS 언더레이 장애 및 Metric-Style 불일치 인과 노드 보장
+        isis_nodes = [
+            ("symptom_isis_underlay_down", "IS-IS Underlay Route Down", "Symptom", "IS-IS 언더레이 라우트 미수신 또는 인접성/IP 도달성 결손 장애"),
+            ("rc_isis_metric_style_mismatch", "IS-IS Metric-Style Mismatch", "RootCause", "IS-IS Narrow vs Wide Metric-Style TLV 불일치로 인한 IP 도달성(Reachability) 접두사 교환 실패"),
+            ("verif_isis_metric_style", "Verify IS-IS Metric Style & TLVs", "Verification", "IS-IS metric-style 및 TLV 128/135 교환 여부 검증"),
+            ("remed_isis_metric_style", "router isis / metric-style wide", "Remediation", "router isis 설정 하위에 metric-style wide 명령어를 일관되게 적용하여 TLV 135 기반 확장 IP 도달성 교환 활성화"),
+            ("cmd_show_run_isis", "show running-config | section router isis", "Command", "IS-IS 프로세스 및 metric-style 설정 확인"),
+            ("cmd_show_ip_route_isis", "show ip route isis", "Command", "IS-IS를 통해 수신된 IPv4 라우트 테이블 확인"),
+        ]
+        for nid, nlabel, ntype, ndesc in isis_nodes:
+            if not self.graph.has_node(nid):
+                self.graph.add_node(nid, label=nlabel, type=ntype, description=ndesc, details={"cli_command": nlabel if ntype == "Command" else ""})
+
+        # 2. 도메인 간 인과 연결(Cross-Domain Causal Links) 보강
+        added_causal_links = 0
+        critical_cross_links = [
+            # OSPF 및 BGP 세션 장애를 유발하는 인터페이스 ACL 차단 인과 체인
+            ("symptom_ospf_down", "rc_interface_acl_blocked", "leads_to", "인터페이스 ACL 차단으로 인한 OSPF 제어 트래픽 차단 및 네이버 불능"),
+            ("symptom_bgp_down", "rc_interface_acl_blocked", "leads_to", "인터페이스 ACL 차단으로 인한 BGP TCP 179 포트 제어 트래픽 차단"),
+            # OSPF 네이버 다운은 BGP 언더레이 넥스트홉 결손의 직접 원인
+            ("symptom_ospf_down", "rc_bgp_nexthop_missing_ospf", "leads_to", "OSPF 언더레이 인접성 붕괴로 인한 BGP Next-Hop 도달 불가 유발"),
+            # BGP Stuck in Active 는 BGP 세션 다운 상태를 초래
+            ("symptom_bgp_active", "symptom_bgp_down", "leads_to", "BGP Active 상태 장기화는 BGP 세션 다운 유발"),
+            # BGP Session Flapping 은 BGP 세션 불안정 및 다운 초래
+            ("symptom_bgp_flapping", "symptom_bgp_down", "leads_to", "지속적 세션 플래핑으로 인한 세션 인접성 상실"),
+            # IS-IS 인과 체인
+            ("symptom_isis_underlay_down", "rc_isis_metric_style_mismatch", "caused_by", "IS-IS Metric-Style TLV 불일치로 인한 라우트 도달 불가"),
+            ("rc_isis_metric_style_mismatch", "verif_isis_metric_style", "verified_by", "IS-IS Metric Style 및 TLV 교환 상태 검증"),
+            ("verif_isis_metric_style", "cmd_show_run_isis", "executes_cli", "IS-IS 설정 CLI 검증"),
+            ("verif_isis_metric_style", "cmd_show_isis_neighbors", "executes_cli", "IS-IS 인접성 상태 검증"),
+            ("verif_isis_metric_style", "cmd_show_ip_route_isis", "executes_cli", "IS-IS 라우트 수신 여부 검증"),
+            ("rc_isis_metric_style_mismatch", "remed_isis_metric_style", "remediated_by", "metric-style wide 설정 통일 복구 조치"),
+            # IS-IS 언더레이 장애 또한 BGP 다운과 유기적 연결
+            ("symptom_isis_underlay_down", "symptom_bgp_down", "leads_to", "IS-IS 언더레이 결손 시 상위 BGP 세션 동반 단절"),
         ]
 
-        for node in default_nodes:
-            self.add_node(node)
+        for s, t, rel, desc in critical_cross_links:
+            if self.graph.has_node(s) and self.graph.has_node(t) and not self.graph.has_edge(s, t):
+                self.graph.add_edge(s, t, relationship=rel, description=desc)
+                added_causal_links += 1
 
-        # 기본 엣지 정의
-        default_edges = [
-            # BGP 관계
-            EdgeModel(source="symptom_bgp_down", target="rc_bgp_auth_mismatch", relationship="caused_by"),
-            EdgeModel(source="symptom_bgp_down", target="rc_bgp_mtu_mismatch", relationship="caused_by"),
-            EdgeModel(source="symptom_bgp_down", target="rc_interface_flapping", relationship="caused_by"),
-            EdgeModel(source="symptom_bgp_down", target="ver_check_bgp_summary", relationship="diagnose_with"),
-            EdgeModel(source="ver_check_bgp_summary", target="cmd_show_ip_bgp_summary", relationship="executes"),
-            EdgeModel(source="rc_bgp_auth_mismatch", target="ver_check_bgp_neighbors", relationship="verified_by"),
-            EdgeModel(source="ver_check_bgp_neighbors", target="cmd_show_ip_bgp_neighbors", relationship="executes"),
-            EdgeModel(source="rc_interface_flapping", target="ver_check_interface_status", relationship="verified_by"),
-            EdgeModel(source="ver_check_interface_status", target="cmd_show_ip_int_brief", relationship="executes"),
-            EdgeModel(source="rc_bgp_auth_mismatch", target="cmd_fix_bgp_auth", relationship="mitigated_by"),
-            EdgeModel(source="rc_bgp_mtu_mismatch", target="cmd_fix_interface_mtu", relationship="mitigated_by"),
+        logger.info(
+            f"Canonicalization complete: merged {merged_nodes_count} duplicate command nodes, "
+            f"redirected {redirected_edges_count} edges, added {added_causal_links} cross-domain causal links."
+        )
 
-            # OSPF 관계
-            EdgeModel(source="symptom_ospf_exstart", target="rc_ospf_mtu_mismatch", relationship="caused_by"),
-            EdgeModel(source="symptom_ospf_exstart", target="ver_check_ospf_neighbor", relationship="diagnose_with"),
-            EdgeModel(source="ver_check_ospf_neighbor", target="cmd_show_ip_ospf_neighbor", relationship="executes"),
-            EdgeModel(source="rc_ospf_mtu_mismatch", target="cmd_fix_ospf_mtu", relationship="mitigated_by"),
+        if save:
+            self.save_to_files()
 
-            # Interface Errors 관계
-            EdgeModel(source="symptom_input_errors", target="rc_duplex_mismatch", relationship="caused_by"),
-            EdgeModel(source="symptom_input_errors", target="ver_check_interface_counters", relationship="diagnose_with"),
-            EdgeModel(source="ver_check_interface_counters", target="cmd_show_interfaces", relationship="executes"),
-            EdgeModel(source="rc_duplex_mismatch", target="cmd_fix_duplex_auto", relationship="mitigated_by"),
+        return {
+            "merged_nodes": merged_nodes_count,
+            "redirected_edges": redirected_edges_count,
+            "added_causal_links": added_causal_links,
+            "total_nodes": self.graph.number_of_nodes(),
+            "total_edges": self.graph.number_of_edges()
+        }
+
+    def _load_from_json(self, json_path: str) -> None:
+        """ArangoDB 호환 causal_graph.json 파일에서 노드와 엣지를 로드합니다."""
+        self.graph.clear()
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            for n in data.get("nodes", []):
+                nid = n.get("id") or n.get("_key")
+                self.graph.add_node(
+                    nid,
+                    label=n.get("label", nid),
+                    type=n.get("type", "Symptom"),
+                    description=n.get("description", ""),
+                    details=n.get("details", {})
+                )
+
+            for e in data.get("edges", []):
+                src = e.get("source") or (e.get("_from", "").split("/")[-1])
+                tgt = e.get("target") or (e.get("_to", "").split("/")[-1])
+                self.graph.add_edge(
+                    src,
+                    tgt,
+                    relationship=e.get("relationship", "leads_to"),
+                    description=e.get("description", "")
+                )
+
+            logger.info(f"UniversalGraphEngine loaded {self.graph.number_of_nodes()} nodes and {self.graph.number_of_edges()} edges from {json_path}")
+        except Exception as e:
+            logger.error(f"Error loading graph from JSON ({e}). Falling back to Cypher parser.", exc_info=True)
+            if Path(self.cypher_file_path).exists():
+                self._load_from_cypher(self.cypher_file_path)
+
+    def _load_from_cypher(self, cypher_path: str) -> None:
+        """Neo4j 호환 causal_graph.cypher 파일에서 정규식 파서로 노드와 엣지를 로드합니다."""
+        self.graph.clear()
+        with open(cypher_path, "r", encoding="utf-8") as f:
+            text = f.read()
+
+        node_pattern = re.compile(r"CREATE \(:CausalNode \{id: '([^']+)', label: '([^']+)', type: '([^']+)', description: '([^']*)', details: '(.*)'\}\);")
+        rel_pattern = re.compile(r"MATCH \(s:CausalNode \{id: '([^']+)'\}\), \(t:CausalNode \{id: '([^']+)'\}\) CREATE \(s\)-\[:Rel \{relationship: '([^']*)', description: '([^']*)'\}\]->\(t\);")
+
+        for line in text.splitlines():
+            line = line.strip()
+            m_node = node_pattern.match(line)
+            if m_node:
+                nid, label, ntype, desc, details_str = m_node.groups()
+                try:
+                    details = json.loads(details_str.replace("\\'", "'"))
+                except Exception:
+                    details = {}
+                self.graph.add_node(nid, label=label, type=ntype, description=desc, details=details)
+
+            m_rel = rel_pattern.match(line)
+            if m_rel:
+                src, tgt, rel, desc = m_rel.groups()
+                self.graph.add_edge(src, tgt, relationship=rel or "leads_to", description=desc)
+
+        logger.info(f"UniversalGraphEngine loaded {self.graph.number_of_nodes()} nodes and {self.graph.number_of_edges()} edges from Cypher.")
+
+    def save_to_files(self) -> None:
+        """현재 그래프 상태를 causal_graph.json(ArangoDB) 및 causal_graph.cypher(Neo4j) 파일에 모두 영구 저장합니다."""
+        nodes = []
+        for nid, attrs in self.graph.nodes(data=True):
+            nodes.append({
+                "_key": nid,
+                "id": nid,
+                "label": attrs.get("label", nid),
+                "type": attrs.get("type", "Symptom"),
+                "description": attrs.get("description", ""),
+                "details": attrs.get("details", {})
+            })
+
+        edges = []
+        for src, tgt, attrs in self.graph.edges(data=True):
+            edges.append({
+                "_from": f"CausalNode/{src}",
+                "_to": f"CausalNode/{tgt}",
+                "source": src,
+                "target": tgt,
+                "relationship": attrs.get("relationship", "leads_to"),
+                "description": attrs.get("description", "")
+            })
+
+        # 1. ArangoDB 호환 JSON 저장
+        with open(self.json_file_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "nodes": nodes,
+                "edges": edges,
+                "metadata": {
+                    "format": "ArangoDB & Neo4j Multi-Model Causal Graph Seed",
+                    "nodes_count": len(nodes),
+                    "edges_count": len(edges)
+                }
+            }, f, ensure_ascii=False, indent=2)
+
+        # 2. Neo4j 호환 Cypher 파일 저장
+        cypher_lines = [
+            "// =====================================================================",
+            "// Cisco IOS-XE Causal GraphDB - openCypher Definition",
+            "// Standard Neo4j & ArangoDB Graph Seed File",
+            "// =====================================================================\n",
+            "CREATE NODE TABLE IF NOT EXISTS CausalNode (id STRING, label STRING, type STRING, description STRING, details STRING, PRIMARY KEY (id));",
+            "CREATE REL TABLE IF NOT EXISTS Rel (FROM CausalNode TO CausalNode, relationship STRING, description STRING);\n"
         ]
+        for n in nodes:
+            nid = n["id"].replace("'", "\\'")
+            label = n["label"].replace("'", "\\'")
+            ntype = n["type"].replace("'", "\\'")
+            desc = n["description"].replace("'", "\\'")
+            details_str = json.dumps(n["details"], ensure_ascii=False).replace("'", "\\'")
+            cypher_lines.append(f"CREATE (:CausalNode {{id: '{nid}', label: '{label}', type: '{ntype}', description: '{desc}', details: '{details_str}'}});")
 
-        for edge in default_edges:
-            self.add_edge(edge)
+        cypher_lines.append("\n// Relationships")
+        for e in edges:
+            src = e["source"].replace("'", "\\'")
+            tgt = e["target"].replace("'", "\\'")
+            rel = e["relationship"].replace("'", "\\'")
+            desc = e["description"].replace("'", "\\'")
+            cypher_lines.append(f"MATCH (s:CausalNode {{id: '{src}'}}), (t:CausalNode {{id: '{tgt}'}}) CREATE (s)-[:Rel {{relationship: '{rel}', description: '{desc}'}}]->(t);")
 
-        logger.info(f"Default Causal Graph initialized with {self.graph.number_of_nodes()} nodes and {self.graph.number_of_edges()} edges.")
+        with open(self.cypher_file_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(cypher_lines) + "\n")
+
+    def query_cypher(self, cypher_query: str) -> List[Dict[str, Any]]:
+        """openCypher 쿼리를 파싱하여 NetworkX 그래프 상에서 결과를 시뮬레이션 반환합니다."""
+        q = cypher_query.strip()
+        results = []
+
+        # MATCH (n:CausalNode) RETURN ... 쿼리 처리
+        if "RETURN" in q.upper():
+            limit_m = re.search(r"LIMIT\s+(\d+)", q, re.IGNORECASE)
+            limit = int(limit_m.group(1)) if limit_m else 100
+
+            # 특정 노드 조회
+            id_m = re.search(r"id:\s*'([^']+)'", q)
+            if id_m:
+                nid = id_m.group(1)
+                if self.graph.has_node(nid):
+                    attrs = self.graph.nodes[nid]
+                    results.append({
+                        "n.id": nid,
+                        "n.label": attrs.get("label", nid),
+                        "n.type": attrs.get("type", "Symptom"),
+                        "n.description": attrs.get("description", "")
+                    })
+            else:
+                for nid, attrs in list(self.graph.nodes(data=True))[:limit]:
+                    results.append({
+                        "n.id": nid,
+                        "n.label": attrs.get("label", nid),
+                        "n.type": attrs.get("type", "Symptom"),
+                        "n.description": attrs.get("description", "")
+                    })
+
+        return results
 
     def add_node(self, node: NodeModel) -> None:
-        """노드를 추가하거나 기존 노드를 업데이트합니다."""
+        ntype = node.type.value if hasattr(node.type, "value") else str(node.type)
         self.graph.add_node(
             node.id,
             label=node.label,
-            type=node.type.value if hasattr(node.type, "value") else str(node.type),
+            type=ntype,
             description=node.description or "",
             details=node.details or {}
         )
+        self.save_to_files()
 
     def delete_node(self, node_id: str) -> bool:
-        """노드 및 연결된 엣지를 삭제합니다."""
         if self.graph.has_node(node_id):
             self.graph.remove_node(node_id)
+            self.save_to_files()
             return True
         return False
 
     def add_edge(self, edge: EdgeModel) -> None:
-        """방향성 엣지를 추가합니다. (source -> target)"""
         if not self.graph.has_node(edge.source):
-            # 미등록 노드 자동 생성
             self.graph.add_node(edge.source, label=edge.source, type=NodeType.SYMPTOM.value, description="", details={})
         if not self.graph.has_node(edge.target):
             self.graph.add_node(edge.target, label=edge.target, type=NodeType.ROOT_CAUSE.value, description="", details={})
@@ -255,25 +413,116 @@ class CausalGraphEngine:
             relationship=edge.relationship or "leads_to",
             description=edge.description or ""
         )
+        self.save_to_files()
 
     def delete_edge(self, source: str, target: str) -> bool:
-        """지정된 두 노드 간의 엣지를 삭제합니다."""
         if self.graph.has_edge(source, target):
             self.graph.remove_edge(source, target)
+            self.save_to_files()
             return True
         return False
 
-    def get_graph_data(self) -> Dict[str, Any]:
-        """react-force-graph-2d 호환 JSON 형식으로 그래프 데이터를 반환합니다."""
+    def compute_topology_layout(self, layout_type: str = "force") -> Dict[str, Dict[str, float]]:
+        """NetworkX 기반의 대표 토폴로지 레이아웃 좌표를 계산합니다.
+        
+        1. hierarchical: 인과 흐름 계층 배치 (Symptom -> RootCause -> Verification -> Command)
+        2. radial (concentric): 동심원 궤도 배치 (중앙 Symptom -> 외곽 Command)
+        3. force: 기본 자유 배치 (fx/fy 미지정)
+        """
+        positions: Dict[str, Dict[str, float]] = {}
+
+        if layout_type == "hierarchical":
+            # 4대 계층 분류
+            layer_types = {
+                "Symptom": 0,
+                "RootCause": 1,
+                "Verification": 2,
+                "Command": 3
+            }
+            
+            nodes_by_layer: Dict[int, List[str]] = {0: [], 1: [], 2: [], 3: []}
+            for nid, attrs in self.graph.nodes(data=True):
+                ntype = attrs.get("type", "Symptom")
+                layer_idx = layer_types.get(ntype, 0)
+                nodes_by_layer[layer_idx].append(nid)
+
+            # X축 계층 컬럼 좌표 (-550, -180, +180, +550)
+            x_offsets = {0: -550.0, 1: -180.0, 2: 180.0, 3: 550.0}
+
+            for l_idx, nids in nodes_by_layer.items():
+                count = len(nids)
+                if count == 0:
+                    continue
+                # Y축 균등 분산
+                total_span = min(count * 26.0, 950.0)
+                y_start = -total_span / 2.0
+                y_step = total_span / max(count - 1, 1)
+
+                for i, nid in enumerate(nids):
+                    y_pos = y_start + i * y_step if count > 1 else 0.0
+                    positions[nid] = {
+                        "x": x_offsets[l_idx],
+                        "y": y_pos,
+                        "fx": x_offsets[l_idx],
+                        "fy": y_pos
+                    }
+
+        elif layout_type == "radial" or layout_type == "concentric":
+            # 4대 동심원 궤도 (Rings)
+            ring_radii = {
+                "Symptom": 90.0,
+                "RootCause": 220.0,
+                "Verification": 360.0,
+                "Command": 500.0
+            }
+            import math
+            nodes_by_ring: Dict[str, List[str]] = {"Symptom": [], "RootCause": [], "Verification": [], "Command": []}
+            for nid, attrs in self.graph.nodes(data=True):
+                ntype = attrs.get("type", "Symptom")
+                if ntype in nodes_by_ring:
+                    nodes_by_ring[ntype].append(nid)
+                else:
+                    nodes_by_ring["Symptom"].append(nid)
+
+            for ntype, nids in nodes_by_ring.items():
+                radius = ring_radii[ntype]
+                count = len(nids)
+                if count == 0:
+                    continue
+                angle_step = (2 * math.pi) / count
+                for i, nid in enumerate(nids):
+                    angle = i * angle_step
+                    x_pos = radius * math.cos(angle)
+                    y_pos = radius * math.sin(angle)
+                    positions[nid] = {
+                        "x": x_pos,
+                        "y": y_pos,
+                        "fx": x_pos,
+                        "fy": y_pos
+                    }
+
+        return positions
+
+    def get_graph_data(self, layout: Optional[str] = None) -> Dict[str, Any]:
+        """react-force-graph-2d 호환 JSON 형식 반환 (선택된 토폴로지 레이아웃 좌표 포함)"""
+        layout_positions = {}
+        if layout in ("hierarchical", "radial", "concentric"):
+            layout_positions = self.compute_topology_layout(layout)
+
         nodes = []
         for node_id, attrs in self.graph.nodes(data=True):
-            nodes.append({
+            node_dict: Dict[str, Any] = {
                 "id": node_id,
                 "label": attrs.get("label", node_id),
                 "type": attrs.get("type", NodeType.SYMPTOM.value),
                 "description": attrs.get("description", ""),
                 "details": attrs.get("details", {})
-            })
+            }
+            # 레이아웃 좌표 주입
+            if node_id in layout_positions:
+                node_dict.update(layout_positions[node_id])
+
+            nodes.append(node_dict)
 
         links = []
         for src, dst, attrs in self.graph.edges(data=True):
@@ -286,16 +535,21 @@ class CausalGraphEngine:
 
         return {
             "nodes": nodes,
-            "links": links
+            "links": links,
+            "layout": layout or "force",
+            "metadata": {
+                "nodes_count": len(nodes),
+                "edges_count": len(links),
+                "components_count": nx.number_connected_components(self.graph.to_undirected())
+            }
         }
 
     def find_causal_paths(self, start_node_id: str) -> List[Dict[str, Any]]:
-        """특정 노드에서 도달 가능한 모든 인과 관계 경로를 탐색합니다."""
+        """특정 노드에서 도달 가능한 모든 인과 관계 경로 탐색"""
         if not self.graph.has_node(start_node_id):
             return []
 
         paths = []
-        # DFS를 활용한 모든 경로 탐색 (최대 깊이 6 제한)
         for target_node in self.graph.nodes:
             if target_node != start_node_id and nx.has_path(self.graph, start_node_id, target_node):
                 for p in nx.all_simple_paths(self.graph, source=start_node_id, target=target_node, cutoff=6):
@@ -313,62 +567,121 @@ class CausalGraphEngine:
                     })
         return paths
 
-    def query_subgraph_by_keyword(self, keyword: str) -> Dict[str, Any]:
-        """키워드가 포함된 노드와 그 1-hop 및 2-hop 이웃 서브그래프를 반환합니다."""
-        matched_node_ids = set()
-        keyword_lower = keyword.lower()
+    def match_symptom(
+        self,
+        message: str,
+        protocol_hint: Optional[str] = None,
+        symptom_intent: Optional[str] = None
+    ) -> str:
+        """1차 LLM의 symptom_intent 및 프로토콜 힌트로부터 GraphDB 증상 노드 ID를 결정 (휴리스틱 점수 계산 코드 제거)"""
+        # 1. 1차 LLM이 추출한 증상 의도가 그래프에 존재하는 경우 즉시 바인딩
+        if symptom_intent and self.graph.has_node(symptom_intent):
+            return symptom_intent
 
-        for node_id, attrs in self.graph.nodes(data=True):
-            label = attrs.get("label", "").lower()
-            desc = attrs.get("description", "").lower()
-            if keyword_lower in node_id.lower() or keyword_lower in label or keyword_lower in desc:
-                matched_node_ids.add(node_id)
+        msg_lower = message.lower()
 
-        # 1-hop 이웃 확장
-        subgraph_nodes = set(matched_node_ids)
-        for n in matched_node_ids:
-            subgraph_nodes.update(self.graph.predecessors(n))
-            subgraph_nodes.update(self.graph.successors(n))
+        # 2. 프로토콜 기반 명확한 매핑
+        p = (protocol_hint or "").lower()
+        if "ospf" in p or "ospf" in msg_lower:
+            if "exstart" in msg_lower:
+                return "symptom_ospf_exstart"
+            return "symptom_ospf_down"
+        elif "isis" in p or "is-is" in p or "isis" in msg_lower:
+            return "symptom_isis_underlay_down"
+        elif "bgp" in p or "bgp" in msg_lower:
+            if "active" in msg_lower:
+                return "symptom_bgp_active"
+            elif "flap" in msg_lower or "reset" in msg_lower:
+                return "symptom_bgp_flapping"
+            return "symptom_bgp_down"
+        elif "acl" in p or "drop" in msg_lower or "드롭" in msg_lower or "차단" in msg_lower:
+            return "symptom_packet_drop"
 
-        sub_g = self.graph.subgraph(subgraph_nodes)
-        
-        nodes = []
-        for node_id, attrs in sub_g.nodes(data=True):
-            nodes.append({
-                "id": node_id,
-                "label": attrs.get("label", node_id),
-                "type": attrs.get("type", NodeType.SYMPTOM.value),
-                "description": attrs.get("description", ""),
-                "details": attrs.get("details", {})
-            })
+        return "symptom_ospf_down"
 
-        links = []
-        for src, dst, attrs in sub_g.edges(data=True):
-            links.append({
-                "source": src,
-                "target": dst,
-                "relationship": attrs.get("relationship", "leads_to"),
-                "description": attrs.get("description", "")
-            })
+    def get_diagnostic_workflow(self, symptom_id: str) -> Dict[str, Any]:
+        """GraphDB의 인과 경로를 순회하여 OSI 7 계층 순서로 정렬된 검증 CLI 및 복구 방안을 도출"""
+        if not self.graph.has_node(symptom_id):
+            symptom_id = "symptom_bgp_down"
+
+        symptom_attrs = self.graph.nodes[symptom_id]
+        causal_paths = self.find_causal_paths(symptom_id)
+
+        root_causes = []
+        verifications = []
+        verification_commands = []
+        remediation_actions = []
+
+        seen_nodes = set()
+        for p_info in causal_paths:
+            for step in p_info["steps"]:
+                nid = step["id"]
+                if nid in seen_nodes:
+                    continue
+                seen_nodes.add(nid)
+
+                attrs = self.graph.nodes[nid]
+                ntype = attrs.get("type")
+                entry = {
+                    "id": nid,
+                    "label": attrs.get("label", nid),
+                    "type": ntype,
+                    "description": attrs.get("description", ""),
+                    "details": attrs.get("details", {})
+                }
+
+                if ntype in (NodeType.ROOT_CAUSE.value, "RootCause"):
+                    root_causes.append(entry)
+                elif ntype in (NodeType.VERIFICATION.value, "Verification"):
+                    verifications.append(entry)
+                elif ntype in (NodeType.COMMAND.value, "Command"):
+                    details = attrs.get("details", {})
+                    if details.get("type") == "Remediation":
+                        remediation_actions.append(entry)
+                    else:
+                        cmd_str = details.get("command") or attrs.get("label")
+                        entry["command"] = cmd_str
+                        verification_commands.append(entry)
+
+        # 중복 명령어 제거
+        seen_cmds = set()
+        unique_cmds = []
+        for c in verification_commands:
+            c_str = c.get("command") or c.get("label")
+            if c_str not in seen_cmds:
+                seen_cmds.add(c_str)
+                unique_cmds.append(c)
+
+        # OSI 7 계층 Bottom-Up 우선순위 정렬
+        def osi_layer_priority(cmd_entry: Dict[str, Any]) -> int:
+            cmd = (cmd_entry.get("command") or "").lower()
+            lbl = (cmd_entry.get("label") or "").lower()
+            if "brief" in cmd or "interfaces" in cmd or "duplex" in lbl or "mtu" in lbl:
+                return 10  # L1/L2
+            if "show ip interface" in cmd or "access-list" in cmd or "policy" in cmd or "route-map" in cmd or "acl" in lbl or "pbr" in lbl:
+                return 20  # L3 보안 및 PBR
+            if "show ip route" in cmd or "ospf" in cmd or "isis" in cmd or "static" in cmd or "ping" in cmd:
+                return 30  # L3 언더레이/라우팅
+            if "tcp" in cmd or "port" in cmd or "179" in lbl:
+                return 40  # L4 전송
+            return 50      # L7 BGP 프로토콜
+
+        unique_cmds.sort(key=osi_layer_priority)
 
         return {
-            "matched_count": len(matched_node_ids),
-            "nodes": nodes,
-            "links": links
+            "symptom": {
+                "id": symptom_id,
+                "label": symptom_attrs.get("label", symptom_id),
+                "description": symptom_attrs.get("description", "")
+            },
+            "root_causes": root_causes,
+            "verifications": verifications,
+            "verification_commands": unique_cmds,
+            "remediation_actions": remediation_actions,
+            "causal_paths": causal_paths
         }
 
-    def get_context_for_llm(self) -> str:
-        """LLM 시스템 프롬프트에 주입할 Causal Graph 요약 텍스트를 생성합니다."""
-        summary = ["### Network-AIOps Causal Diagnostic Knowledge Graph ###"]
-        for node_id, attrs in self.graph.nodes(data=True):
-            ntype = attrs.get("type", "Node")
-            label = attrs.get("label", node_id)
-            desc = attrs.get("description", "")
-            successors = [f"{s}({self.graph.nodes[s].get('label', s)})" for s in self.graph.successors(node_id)]
-            succ_str = f" -> leads to: {', '.join(successors)}" if successors else ""
-            summary.append(f"- [{ntype}] {label} (ID: {node_id}): {desc}{succ_str}")
-        return "\n".join(summary)
 
-
-# 싱글톤 인스턴스
-graph_engine = CausalGraphEngine()
+# 전역 인스턴스 (앱 전체에서 공유)
+graph_engine = UniversalCausalGraphEngine()
+CausalGraphEngine = UniversalCausalGraphEngine  # 이전 클래스명 호환성 보장
